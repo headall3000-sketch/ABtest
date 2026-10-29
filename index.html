@@ -478,28 +478,28 @@ const COACH_Y = 140; // 네 코치마크 모두 같은 높이
 
 /* ---------- 미션 ---------- */
 const MISSIONS = [
- {t:"방문·인터뷰 희망 날짜를 고르는 문항을 만들어 주세요", d:"현지 팝업스토어 방문이나 인터뷰가 가능한 날짜를 응답자가 고를 수 있는 문항을 추가해 주세요. 시간은 묻지 않아도 돼요."},
- {t:"불편했던 점을 최소 50자 이상 쓰게 하는 서술형 문항을 만들어 주세요", d:"기존 제품이나 유사 서비스를 쓰며 불편했던 점을 자세히 적게 하려고 해요. 50자보다 짧으면 제출되지 않게 설정해 주세요."},
- {t:"로고 시안 이미지 중 하나를 고르는 문항을 만들어 주세요", d:"해외 타깃 고객이 가장 선호하는 로고 디자인을 고르게 하려고 해요. 이미지를 실제로 넣지 않아도 됩니다."},
- {t:"국가 코드가 포함된 연락처를 받는 문항을 만들어 주세요", d:"추후 개별 연락을 위해 해외 응답자의 연락처를 받으려고 해요."},
- {t:"연락처 문항 바로 아래에 개인정보 수집·이용 동의 문항을 넣고, 동의해야 제출되게 해 주세요", d:"연락처를 받으려면 개인정보 수집·이용 동의가 필요해요. 연락처 문항 바로 다음에 두고, 동의하지 않으면 제출할 수 없게 해 주세요."},
- {t:"불편했던 점을 묻는 서술형 문항을 맨 아래로 옮겨 주세요", d:"2번에서 만든 서술형 문항을 설문의 가장 마지막 문항이 되도록 옮겨 주세요. 다른 문항의 순서는 그대로 두세요."},
- {t:"미리보기로 확인한 뒤 게시해 주세요", d:"응답자에게 보이는 화면을 미리보기로 확인한 다음 설문을 게시해 주세요."}
+ {t:"설문 필드에서 인터뷰 희망 날짜를 받는 문항을 만들어 주세요."},
+ {t:"설문 필드에서 최소 50자 이상 자세히 작성할 수 있는 서술형 문항을 만들어주세요."},
+ {t:"설문 필드에서 여러 이미지 중 하나를 고르는 문항을 만들어주세요."},
+ {t:"설문 필드에서 연락처 수집을 할 수 있는 문항을 만들어주세요."},
+ {t:"설문 필드에서 개인 정보 수집 이용 동의를 받는 문항을 추가해 주세요."},
+ {t:"추가한 설문 문항에서 미션 2에서 만든 서술형 문항을 가장 아래로 이동시켜 주세요."},
+ {t:"미리보기로 내용을 확인한 뒤, 최종적으로 게시 버튼을 눌러주세요."}
 ];
 
 /* 미션 카드: 미션 이름 + 성공 조건 (초안 — 팀 표가 오면 교체) */
-const MLABEL = ["날짜 문항 추가","서술형 문항 추가","이미지 선택 문항 추가","연락처 문항 추가","개인정보 동의 문항 추가","문항 순서 변경","미리보기 후 게시"];
+const MLABEL = ["날짜 문항 추가","서술형 문항 추가","사진 선택 문항 추가","연락처 문항 추가","개인정보 수집","필드 순서 변경","미리보기 및 게시"];
 const CRIT = [
- [["설문 필드에서 '날짜' 추가", F=>F.some(f=>f.type==="date")]],
- [["설문 필드에서 '장문형' 추가", F=>F.some(f=>f.type==="long")],
-  ["응답 길이 제한 : 최소 50자", F=>F.some(longMin50)]],
- [["설문 필드에서 '사진 선택' 추가", F=>F.some(f=>f.type==="photo")]],
- [["설문 필드에서 '전화번호' 추가", F=>F.some(f=>f.type==="phone")]],
- [["설문 필드에서 '개인정보 수집' 추가", F=>F.some(f=>f.type==="consent")],
-  ["'전화번호' 바로 아래에 배치", F=>F.some((f,i)=>f.type==="phone"&&F[i+1]&&F[i+1].type==="consent")],
-  ["필수입력 켜기", F=>F.some(f=>f.type==="consent"&&f.required)]],
- [["서술형 문항을 맨 아래로 이동", F=>m6ok(F)]],
- [["미리보기 열기", ()=>S.previewOpened],["게시하기", ()=>S.published]]
+ [["설문 필드에서 ‘날짜’ 필드 추가", F=>F.some(f=>f.type==="date")]],
+ [["설문 필드에서 ‘장문형’ 필드 추가", F=>F.some(f=>f.type==="long")],
+  ["응답 길이 제한 ‘최소 50자’ 이상", F=>F.some(longMin50)]],
+ [["설문 필드에서 ‘사진 선택’ 필드 추가", F=>F.some(f=>f.type==="photo")]],
+ [["설문 필드에서 ‘연락처’ 필드 추가", F=>F.some(f=>f.type==="phone")]],
+ [["설문 필드에서 ‘개인정보 수집’ 필드 추가", F=>F.some(f=>f.type==="consent")],
+  ["필수 입력 활성화", F=>F.some(f=>f.type==="consent"&&f.required)]],
+ [["장문형 문항 위치를 가장 하단으로 변경", F=>m6ok(F)],
+  ["다른 문항 순서는 그대로 유지", F=>othersKept(F)]],
+ [["미리보기 화면 확인 후 닫기", ()=>S.previewOpened&&S.previewClosed],["게시하기 버튼 누르기", ()=>S.published]]
 ];
 /* ---------- 상태 ---------- */
 const S = {
@@ -558,6 +558,14 @@ function m6ok(F){
   if(S.done[1] && !longMin50(last)) return false;
   return F.some(f=>fnum(f)>fnum(last));
 }
+/* 미션 6 '다른 문항 순서 유지': 미션 6이 시작될 때의 순서(없으면 만든 순서)와 나머지 문항의 상대 순서가 같음 */
+function othersKept(F){
+  const last=F[F.length-1];
+  const others=F.filter(f=>!(f===last&&f.type==="long")).map(f=>f.id);
+  const base=(S.m6Base||F.slice().sort((a,b)=>fnum(a)-fnum(b)).map(f=>f.id)).filter(id=>others.includes(id));
+  const o=others.filter(id=>base.includes(id));
+  return o.length===base.length && o.every((id,k)=>id===base[k]);
+}
 function check(){
   const F=S.fields, has=t=>F.some(f=>f.type===t);
   const cond = [
@@ -565,9 +573,9 @@ function check(){
     F.some(longMin50),
     has("photo"),
     has("phone"),
-    F.some((f,i)=>f.type==="phone" && F[i+1] && F[i+1].type==="consent" && F[i+1].required),
-    m6ok(F),
-    S.previewOpened && S.published
+    F.some(f=>f.type==="consent" && f.required),
+    m6ok(F) && othersKept(F),
+    S.previewOpened && S.previewClosed && S.published
   ];
   cond.forEach((ok,i)=>{
     if(ok && !S.done[i] && !S.gaveUp[i]){
@@ -581,6 +589,7 @@ function check(){
     }
   });
   const c=curMission(); if(c<=7 && !S.missionStartT[c-1]) S.missionStartT[c-1]=now();
+  if(c===6 && !S.m6Base) S.m6Base=S.fields.map(f=>f.id);
   syncCard();
 }
 
@@ -1068,7 +1077,7 @@ document.addEventListener("click",e=>{
   if(id==="field_item"){ const fid=t.closest("[data-fid]").dataset.fid; S.sel=fid; S.pop=null; render(); const el=document.querySelector(`.fcard[data-id="${fid}"]`); el&&el.scrollIntoView({block:"center",behavior:"smooth"}); return; }
   if(id==="field_card" || t.closest(".fcard")){ const c=t.closest(".fcard"); if(S.sel!==c.dataset.id || S.pop){ S.sel=c.dataset.id; S.pop=null; render(); const q=document.querySelector(`[data-q="${c.dataset.id}"]`); if(t.closest("[data-q]")&&q) q.focus(); } return; }
   if(id==="preview_button") return openPreview();
-  if(id==="preview_close"){ track("Preview Closed",{duration_ms:now()-S._pvT}); S.preview=false; return render(); }
+  if(id==="preview_close"){ track("Preview Closed",{duration_ms:now()-S._pvT}); S.preview=false; S.previewClosed=true; check(); return render(); }
   if(id==="preview_desktop"){ S.pvMode="desk"; return render(); }
   if(id==="preview_mobile"){ S.pvMode="mob"; return render(); }
   if(id==="settings_button"){ S.settings=true; S.pop=null; return render(); }
