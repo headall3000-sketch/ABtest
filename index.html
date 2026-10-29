@@ -282,27 +282,36 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .sharepop .lk div{flex:1;height:46px;border-radius:11px;background:var(--line2);display:flex;align-items:center;padding:0 12px;gap:8px;color:var(--ink);overflow:hidden;white-space:nowrap}
 .sharepop .lk div span{flex:1;overflow:hidden;text-overflow:ellipsis}
 .sharepop .lk button{width:46px;height:46px;border-radius:11px;background:var(--blue-l);color:var(--blue);display:grid;place-items:center}
-.toast{position:fixed;right:24px;bottom:28px;z-index:78;background:#fff;border:1px solid #CFEFD9;border-radius:14px;padding:16px 22px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:75;min-width:340px}
+.toast{position:fixed;right:400px;bottom:28px;z-index:78;background:#fff;border:1px solid #CFEFD9;border-radius:14px;padding:16px 22px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:75;min-width:340px}
 .toast i{width:24px;height:24px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#fff}
 .toast i svg.i{width:14px;height:14px;stroke-width:3}
 
-/* mission card (지금 미션 1개, 우측 하단 구석, A·B 동일) */
-#mcard{position:fixed;right:16px;bottom:16px;width:280px;max-height:30vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:75;padding:10px 14px 10px}
-#mcard .mtop{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--ink3);font-weight:600}
-#mcard .mtop .mn{color:var(--blue-d)}
-#mcard .msum{font-size:13.5px;font-weight:500;color:var(--ink);line-height:1.45;margin-top:3px;word-break:keep-all;overflow-wrap:anywhere}
-#mcard .mlink{font-size:12px;color:var(--blue);font-weight:500}
-#mcard .mdet{word-break:keep-all;overflow-wrap:anywhere;font-size:12.5px;line-height:1.55;color:var(--ink2);background:#F8F9FA;border-radius:8px;padding:8px 10px;margin-top:8px}
-#mcard .mgive{display:flex;align-items:center;gap:8px;margin-top:8px}
-#mcard .mgive button{font-size:12px;color:var(--ink2);border:1px solid var(--line);border-radius:7px;padding:4px 10px;background:#fff}
-#mcard .mgive button:hover{background:var(--line2)}
-#mcard .mgive span{font-size:11.5px;color:var(--ink3)}
-#mcard.flash{border-color:#BFE7CF;background:#F1FBF5}
-#mcard .ok{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--green);font-size:15px;padding:6px 0}
-#mcard .ok i{width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center}
-#mcard .ok i svg.i{width:13px;height:13px;stroke-width:3}
+/* mission card (지금 미션 1개, 우측 하단, 최상단 레이어, A·B 동일) */
+#mcard{position:fixed;right:20px;bottom:20px;width:360px;max-height:40vh;overflow:auto;background:#F7F8FA;border:1px solid #D5D9DF;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200;padding:18px 20px 16px}
+#mcard .mhd{display:flex;gap:10px;font-size:13.5px;color:var(--ink3);font-weight:500}
+#mcard .mhd b{font-weight:500;color:var(--ink2)}
+#mcard .mt{font-size:16px;font-weight:700;color:var(--ink);line-height:1.5;margin-top:8px;word-break:keep-all;overflow-wrap:anywhere}
+#mcard .mlink{display:inline-block;margin-top:12px;font-size:13.5px;color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
+#mcard .mch{font-size:13.5px;color:var(--ink3);margin:16px 0 8px}
+#mcard .mc{display:flex;align-items:flex-start;gap:7px;font-size:13.5px;line-height:1.45;color:var(--ink2);margin-bottom:7px;word-break:keep-all}
+#mcard .mc svg{flex:none;width:18px;height:18px;margin-top:1px}
+#mcard .mc.ok{color:var(--blue-d)}
+#mcard .mft{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+#mcard .mft .mlink{margin-top:0}
+#mcard .mskip{margin-left:auto;background:#EEF0F3;color:var(--ink);font-weight:600;font-size:14px;border-radius:10px;padding:10px 16px}
+#mcard .mskip:hover{background:#E4E7EB}
+#mcard .alldone{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--ink);font-size:16px}
+#mcard .alldone i{width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center}
+#mcard .alldone i svg.i{width:13px;height:13px;stroke-width:3}
+#mtoast{position:fixed;right:20px;width:360px;z-index:199;background:#EAF8EE;border:1px solid #8BD3A3;color:#1E7B45;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;box-shadow:0 6px 18px rgba(0,0,0,.08);transform:translateY(var(--hide,120px));transition:transform .35s ease}
+#mtoast.show{transform:translateY(0)}
+#mtoast i{width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;flex:none}
+#mtoast i svg.i{width:13px;height:13px;stroke-width:3}
+.coach li.hasic{display:flex;gap:10px}
+.coach li.hasic svg.i{width:20px;height:20px;flex:none;margin-top:1px;stroke-width:1.8}
+.coach.t-none::after{display:none}
 #right .rp{padding-bottom:120px}
-#narrow{position:fixed;inset:0;z-index:200;background:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;line-height:1.7}
+#narrow{position:fixed;inset:0;z-index:300;background:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;line-height:1.7}
 </style>
 </head>
 <body>
@@ -377,6 +386,7 @@ const P = {
  align:'<path d="M4 6h16M4 10h16M4 14h16M4 18h10"/>',
  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
  card:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+ send:'<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/>',
  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
 };
 const ic = (n,cls="") => `<svg class="i ${cls}" viewBox="0 0 24 24">${P[n]||""}</svg>`;
@@ -461,10 +471,10 @@ const COACH = {
  left:{title:"설문 필드", items:[["설문 필드 추가","원하는 질문 유형을 선택해 설문에 추가할 수 있어요."],["질문 순서 변경","질문을 드래그해 원하는 순서로 배치할 수 있어요."]]},
  center:{title:"편집 화면", items:[["질문 편집","추가한 질문의 내용과 선택지를 자유롭게 수정할 수 있어요."],["페이지 나누기","설문을 여러 페이지로 나눠 응답 흐름을 구성할 수 있어요."],["그룹 나누기","관련된 질문을 하나의 그룹으로 묶어 정리할 수 있어요."],["버튼 커스텀","설문에 표시되는 버튼의 문구와 스타일을 변경할 수 있어요."],["브랜딩","로고와 색상 등을 설정해 브랜드에 맞는 설문을 만들 수 있어요."]]},
  right:{title:"질문 설정", items:[["질문 상세 설정","질문을 선택하고 필수 응답, 선택지 제한 등을 켜거나 끌 수 있어요."]]},
- top:{title:"상단 메뉴", items:[["미리보기","응답자에게 보이는 설문 화면을 미리 확인할 수 있어요."],["설문 링크 공유","설문 링크를 복사해 원하는 대상에게 공유할 수 있어요."],["게시하기","완성한 설문을 게시해 응답을 받을 수 있어요."],["설문 설정","설문 운영에 필요한 기본 설정을 확인하고 변경할 수 있어요."]], last:true}
+ top:{title:"상단 메뉴", items:[["미리보기","응답자에게 보이는 설문 화면을 미리 확인할 수 있어요.","monitor"],["설문 링크 공유","설문 링크를 복사해 원하는 대상에게 공유할 수 있어요.","link"],["게시하기","완성한 설문을 게시해 응답을 받을 수 있어요.","send"],["설문 설정","설문 운영에 필요한 기본 설정을 확인하고 변경할 수 있어요.","gear"]], last:true}
 };
 const COACH_ORDER = ["left","center","right","top"];
-const COACH_Y = 120; // 네 코치마크 모두 같은 높이
+const COACH_Y = 140; // 네 코치마크 모두 같은 높이
 
 /* ---------- 미션 ---------- */
 const MISSIONS = [
@@ -477,6 +487,20 @@ const MISSIONS = [
  {t:"미리보기로 확인한 뒤 게시해 주세요", d:"응답자에게 보이는 화면을 미리보기로 확인한 다음 설문을 게시해 주세요."}
 ];
 
+/* 미션 카드: 미션 이름 + 성공 조건 (초안 — 팀 표가 오면 교체) */
+const MLABEL = ["날짜 문항 추가","서술형 문항 추가","이미지 선택 문항 추가","연락처 문항 추가","개인정보 동의 문항 추가","문항 순서 변경","미리보기 후 게시"];
+const CRIT = [
+ [["설문 필드에서 '날짜' 추가", F=>F.some(f=>f.type==="date")]],
+ [["설문 필드에서 '장문형' 추가", F=>F.some(f=>f.type==="long")],
+  ["응답 길이 제한 : 최소 50자", F=>F.some(longMin50)]],
+ [["설문 필드에서 '사진 선택' 추가", F=>F.some(f=>f.type==="photo")]],
+ [["설문 필드에서 '전화번호' 추가", F=>F.some(f=>f.type==="phone")]],
+ [["설문 필드에서 '개인정보 수집' 추가", F=>F.some(f=>f.type==="consent")],
+  ["'전화번호' 바로 아래에 배치", F=>F.some((f,i)=>f.type==="phone"&&F[i+1]&&F[i+1].type==="consent")],
+  ["필수입력 켜기", F=>F.some(f=>f.type==="consent"&&f.required)]],
+ [["서술형 문항을 맨 아래로 이동", F=>m6ok(F)]],
+ [["미리보기 열기", ()=>S.previewOpened],["게시하기", ()=>S.published]]
+];
 /* ---------- 상태 ---------- */
 const S = {
  screen:"start",
@@ -484,7 +508,7 @@ const S = {
  pop:null,          // {kind:'catalog'|'menu'|'cc'|'share', ...}
  catQuery:"", catTab:"basic",
  preview:false, pvMode:"desk", settings:false, endAsk:false, toast:false, published:false,
- detail:null, card:0, flash:false, allDone:false,
+ detail:null, card:0, allDone:false,
  done:Array(7).fill(null), gaveUp:Array(7).fill(false),
  coachSeen:{}, coach:null, coachOff:false, pending:null,
  // 측정
@@ -562,7 +586,7 @@ function check(){
 
 /* ---------- 필드 ---------- */
 function newField(type){
-  const f={id:"f"+(S.uid++), type, title:type==="consent"?"개인 정보 수집·이용 동의서":"", q:"", required:type==="consent", len:{on:false,min:"",max:""}, opts:type==="photo"?["",""]:[""], country:"auto"};
+  const f={id:"f"+(S.uid++), type, title:type==="consent"?"개인 정보 수집·이용 동의서":"", q:"", required:false, len:{on:false,min:"",max:""}, opts:type==="photo"?["",""]:[""], country:"auto"};
   return f;
 }
 function addField(type, source, at){
@@ -621,8 +645,9 @@ function render(){
 function renderStart(){
   $app.innerHTML = `<div class="page"><div class="sheet">
    <h1>설문 만들기 테스트</h1><p class="sub">약 15분 · 미션을 마친 뒤 2분 설문</p>
-   <div class="sit"><b>상황</b><br>당신은 해외 시장 진출을 앞둔 마케터입니다. 왈라를 처음 켜서 '시장 조사 및 체험단 모집 설문지'를 만들어 보세요.</div>
-   <p class="note">테스트 중에도 오른쪽 아래 미션 카드에서 지금 할 미션을 볼 수 있어요. 정답은 없어요. 막히면 그만두고 설문으로 넘어가셔도 괜찮아요.<br>이 테스트는 교육 프로젝트이며 개인정보는 수집하지 않아요. 입력한 문구는 기록하지 않아요.</p>
+   <div class="sit"><b>미션 안내</b><br>왈라에서 설문 하나를 만들어 보는 테스트예요. 아래 미션 7가지를 순서대로 수행하면 설문이 완성돼요. 어떤 설문을 만드는지 먼저 훑어보고 시작해 주세요.</div>
+   <ol class="mlist" style="margin-top:16px">${MISSIONS.map(m=>`<li>${esc(m.t)}</li>`).join("")}</ol>
+   <p class="note">테스트 중에는 오른쪽 아래 미션 카드에서 지금 할 미션과 성공 조건을 볼 수 있어요. 정답은 없어요. 막히면 그만두고 설문으로 넘어가셔도 괜찮아요.<br>이 테스트는 교육 프로젝트이며 개인정보는 수집하지 않아요. 입력한 문구는 기록하지 않아요.</p>
    <button class="cta" id="go">테스트 시작하기 (약 15분)</button>
   </div></div>`;
   document.getElementById("go").onclick=()=>{
@@ -817,23 +842,38 @@ function settingsHTML(){
    <h5 style="margin:18px 0 8px;font-weight:600">응답 수</h5><div class="trow" style="color:var(--ink3)"><span class="lab">응답 수 제한</span><span class="tog"></span></div>
    </div></div></div></div>`;
 }
+const CHK_ON='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#3182F6"/><path d="m7.5 12.5 3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CHK_OFF='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="none" stroke="#8B95A1" stroke-width="1.6"/><path d="m7.8 12.4 2.9 2.9 5.6-6" fill="none" stroke="#8B95A1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function missionHTML(){
-  if(S.flash) return `<div id="mcard" class="flash" data-area="mission_card"><div class="mtop"><span class="mn">미션 ${S.card+1} / 7</span></div><div class="ok"><i>${ic("check")}</i>완료!</div></div>`;
-  if(S.allDone || S.card>6) return `<div id="mcard" data-area="mission_card"><div class="ok"><i>${ic("check")}</i>모든 미션 완료</div></div>`;
+  if(S.allDone || S.card>6) return `<div id="mcard" data-area="mission_card"><div class="alldone"><i>${ic("check")}</i>모든 미션 완료</div></div>`;
   const i=S.card, m=MISSIONS[i], open=S.detail===i;
+  const crit=CRIT[i].map(([lab,fn])=>{const ok=!!fn(S.fields); return `<div class="mc ${ok?"ok":""}">${ok?CHK_ON:CHK_OFF}<span>${esc(lab)}</span></div>`;}).join("");
   return `<div id="mcard" class="${open?"open":""}" data-area="mission_card">
-   <div class="mtop"><span class="mn">미션 ${i+1} / 7</span><button class="mlink" data-el="mission_detail">${open?"접기":"자세히 보기"}</button></div>
-   <div class="msum">${esc(m.t)}</div>
-   ${open?`<div class="mdet">${esc(m.d)}</div><div class="mgive"><button data-el="mission_abandon">이 미션 포기</button><span>다음 미션으로 넘어가요</span></div>`:""}
+   <div class="mhd"><b>미션 ${i+1}</b><span>${esc(MLABEL[i])}</span></div>
+   <div class="mt">${esc(m.t)}</div>
+   ${open?`<div class="mch">성공 조건</div>${crit}<div class="mft"><button class="mlink" data-el="mission_detail">조건 접기</button><button class="mskip" data-el="mission_abandon">이 단계 건너뛰기</button></div>`
+         :`<button class="mlink" data-el="mission_detail">조건 자세히보기</button><div class="mft"><button class="mskip" data-el="mission_abandon">이 단계 건너뛰기</button></div>`}
   </div>`;
 }
-/* 카드 전환: 보이는 미션이 끝나면 '완료!' 1초 → 가장 앞 미완료 미션 */
+/* 미션 성공 토스트: 카드 뒤에서 위로 올라왔다가 1.7초 뒤 카드 뒤로 내려가 사라짐 */
+let mtTimer=null;
+function missionToast(){
+  document.getElementById("mtoast")?.remove(); clearTimeout(mtTimer);
+  const card=document.getElementById("mcard"); if(!card) return;
+  const ch=card.getBoundingClientRect().height;
+  const t=document.createElement("div"); t.id="mtoast";
+  t.innerHTML=`<i>${ic("check")}</i>미션 성공! 다음 미션을 수행해 주세요.`;
+  t.style.bottom=(20+ch+10)+"px"; t.style.setProperty("--hide",(ch*0.6+60)+"px");
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add("show")));
+  mtTimer=setTimeout(()=>{ t.classList.remove("show"); setTimeout(()=>t.remove(),400); },1700);
+}
+/* 카드 전환: 보이는 미션이 끝나면 토스트 + 바로 가장 앞 미완료 미션으로 */
 function nextCard(){ return curMission()-1; }
 function syncCard(){
-  if(S.flash) return;
   if(S.card<=6 && S.done[S.card]){
-    S.flash=true; renderMissionOnly();
-    setTimeout(()=>{ S.flash=false; S.card=nextCard(); S.detail=null; if(S.card>6) S.allDone=true; renderMissionOnly(); },1000);
+    S.card=nextCard(); S.detail=null; if(S.card>6) S.allDone=true;
+    renderMissionOnly(); missionToast();
   } else if(S.card<=6 && S.gaveUp[S.card]){ S.card=nextCard(); S.detail=null; }
 }
 /* ----- 위치 계산 ----- */
@@ -914,7 +954,7 @@ function renderCoach(){
         R=document.getElementById("right")?.getBoundingClientRect(), T=document.querySelector(".topbar .tright")?.getBoundingClientRect();
   const W=340;
   if(a==="left"){ target=L; cls="t-left"; x=L.right+16; }
-  if(a==="center"){ target=Ce; cls="t-up"; x=Ce.left+Ce.width/2-W/2; }
+  if(a==="center"){ target=Ce; cls="t-none"; x=Ce.left+4; }
   if(a==="right"){ target=R||{left:innerWidth-280,right:innerWidth-12,top:68,bottom:innerHeight-12,width:268,height:innerHeight-80}; cls="t-right"; x=target.left-W-16; }
   if(a==="top"){ target={left:T.left-6,top:8,right:T.right+6,bottom:50,width:T.width+12,height:42}; cls="t-up"; x=Math.min(innerWidth-W-16, T.left); }
   const dim=document.createElement("div"); dim.id="coachDim";
@@ -922,11 +962,10 @@ function renderCoach(){
   document.body.appendChild(dim);
   const c=document.createElement("div"); c.className="coach "+cls; c.style.left=x+"px"; c.style.top=COACH_Y+"px";
   if(a==="top"){ const pb=document.querySelector('[data-el="preview_button"]').getBoundingClientRect(); c.style.setProperty("--tx",(pb.left+pb.width/2-x)+"px"); }
-  if(a==="center"){ c.style.setProperty("--tx","70px"); }
   const n=COACH_ORDER.filter(k=>S.coachSeen[k]).length;
   c.innerHTML=`<div class="ch"><b>${cfg.title}</b><button data-c="close" aria-label="닫기">${ic("x")}</button></div>
    <div class="gif">GIF 자리 (5초 안팎)</div>
-   <ul>${cfg.items.map(([h,d])=>`<li><b>${h}</b>${d}</li>`).join("")}</ul>
+   <ul>${cfg.items.map(([h,d,icn])=>icn?`<li class="hasic">${ic(icn)}<div><b>${h}</b>${d}</div></li>`:`<li><b>${h}</b>${d}</li>`).join("")}</ul>
    <div class="cf"><span>${n}/4</span><button data-c="confirm">${cfg.last?"완료":"확인"}</button></div>`;
   document.body.appendChild(c);
   c.querySelector('[data-c="close"]').onclick=()=>closeCoach("close");
@@ -973,7 +1012,7 @@ function bindEditor(){
     document.querySelectorAll(".catalog.pop .citem").forEach(b=>{
       b.onmouseenter=()=>{ hideTip(); tipTimer=setTimeout(()=>{ if(S.coach) return; const k=b.dataset.type; tipEl=document.createElement("div"); tipEl.className="tip";
         tipEl.innerHTML=`<div class="ex">예시 이미지 자리</div><div class="tx"><b>${TYPES[k].name}</b>${TIPS[k]||""}</div>`; document.body.appendChild(tipEl);
-        const r=b.getBoundingClientRect(); let x=r.right+10; if(x+290>innerWidth) x=r.left-290; tipEl.style.left=x+"px"; tipEl.style.top=Math.max(10,Math.min(innerHeight-260,r.top-40))+"px"; },2000); };
+        const r=b.getBoundingClientRect(); let x=r.right+10; if(x+290>innerWidth) x=r.left-290; tipEl.style.left=x+"px"; tipEl.style.top=Math.max(10,Math.min(innerHeight-260,r.top-40))+"px"; },700); };
       b.onmouseleave=hideTip;
     });
   }
@@ -985,7 +1024,7 @@ document.addEventListener("click",e=>{
   if(S.screen!=="editor") return;
   const t=e.target;
   if(t.closest(".coach")) return;
-  if(S.coach){ e.preventDefault(); e.stopPropagation(); return; }
+  if(S.coach && !t.closest("#mcard")){ e.preventDefault(); e.stopPropagation(); return; }
   hideTT(); hideTip();
   logClick(t);
   const id=t.closest("[data-el]")?.dataset.el;
