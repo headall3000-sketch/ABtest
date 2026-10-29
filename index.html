@@ -494,7 +494,7 @@ const CRIT = [
  [["설문 필드에서 ‘장문형’ 필드 추가", F=>F.some(f=>f.type==="long")],
   ["응답 길이 제한 ‘최소 50자’ 이상", F=>F.some(longMin50)]],
  [["설문 필드에서 ‘사진 선택’ 필드 추가", F=>F.some(f=>f.type==="photo")]],
- [["설문 필드에서 ‘연락처’ 필드 추가", F=>F.some(f=>f.type==="phone")]],
+ [["설문 필드에서 ‘전화번호’ 필드 추가", F=>F.some(f=>f.type==="phone")]],
  [["설문 필드에서 ‘개인정보 수집’ 필드 추가", F=>F.some(f=>f.type==="consent")],
   ["필수 입력 활성화", F=>F.some(f=>f.type==="consent"&&f.required)]],
  [["장문형 문항 위치를 가장 하단으로 변경", F=>m6ok(F)],
