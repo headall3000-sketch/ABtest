@@ -940,7 +940,7 @@ function bindEditor(){
     inp.oninput=()=>{ const f=sel(); f.title=inp.value; const li=document.querySelector(`.fitem[data-fid="${f.id}"] .ftitle`); if(li){li.textContent=f.title||f.q||"제목 없음"; li.classList.toggle("noname",!(f.title||f.q));} };
   });
   document.querySelectorAll("[data-len]").forEach(inp=>{
-    inp.oninput=()=>{ inp.value=inp.value.replace(/[^0-9]/g,""); sel().len[inp.dataset.len]=inp.value; };
+    inp.oninput=()=>{ inp.value=inp.value.replace(/[^0-9]/g,""); sel().len[inp.dataset.len]=inp.value; const before=S.done.filter(Boolean).length; check(); if(S.done.filter(Boolean).length!==before) renderMissionOnly(); };
     inp.onchange=()=>{ const f=sel(); track("Field Setting Changed",{field_type:f.type, setting_key:inp.dataset.len==="min"?"min_length":"max_length", value:inp.value}); check(); renderMissionOnly(); };
   });
   const cq=document.getElementById("catq");
