@@ -525,6 +525,15 @@ function coachTotal(){ return S.coachLog.reduce((s,[a,b])=>s+(b-a),0); }
 
 /* ---------- 미션 판정 ---------- */
 function longMin50(f){ return f.type==="long" && f.len.on && Number(f.len.min)===50; }
+/* 미션 6: 마지막 문항이 장문형(미션 2를 했으면 최소 50 유지)이고, 그 문항보다 나중에 만든 문항이 위에 있음(=아래로 옮김) */
+const fnum = f => +f.id.slice(1);
+function m6ok(F){
+  if(F.length<2) return false;
+  const last=F[F.length-1];
+  if(last.type!=="long") return false;
+  if(S.done[1] && !longMin50(last)) return false;
+  return F.some(f=>fnum(f)>fnum(last));
+}
 function check(){
   const F=S.fields, has=t=>F.some(f=>f.type===t);
   const cond = [
@@ -533,7 +542,7 @@ function check(){
     has("photo"),
     has("phone"),
     F.some((f,i)=>f.type==="phone" && F[i+1] && F[i+1].type==="consent" && F[i+1].required),
-    !!S.done[1] && has("photo") && has("phone") && has("consent") && longMin50(F[F.length-1]),
+    m6ok(F),
     S.previewOpened && S.published
   ];
   cond.forEach((ok,i)=>{
