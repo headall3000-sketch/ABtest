@@ -233,6 +233,7 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke
 
 /* coach marks (B) */
 #coachDim{position:fixed;inset:0;z-index:90;pointer-events:auto}
+#coachDim svg{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none}
 #coachDim .hole{position:fixed;border-radius:16px;box-shadow:0 0 0 9999px rgba(17,24,39,.48);pointer-events:none;transition:all .15s}
 .coach{position:fixed;z-index:91;width:340px;background:var(--blue);color:#fff;border-radius:16px;padding:18px 18px 16px;box-shadow:0 14px 36px rgba(20,60,140,.35)}
 .coach .cin{max-height:calc(100vh - 120px);overflow:auto;margin:-18px -18px -16px;padding:18px 18px 16px;border-radius:16px}
@@ -523,7 +524,7 @@ const MISSIONS = [
  {t:"설문 필드에서 최소 50자 이상 자세히 작성할 수 있는 서술형 문항을 만들어주세요."},
  {t:"설문 필드에서 여러 이미지 중 하나를 고르는 문항을 만들고, 이미지 옵션을 3개로 만들어 주세요."},
  {t:"설문 필드에서 연락처 수집을 할 수 있는 문항을 만들어주세요."},
- {t:"설문 필드에서 개인 정보 수집 이용 동의를 받는 문항을 추가해 주세요."},
+ {t:"설문 필드에서 개인 정보 수집 이용 동의를 받는 문항을 추가하고, 필수 입력으로 설정해 주세요."},
  {t:"지금까지 만든 문항 중, 전화번호 문항을 가장 아래로 내려주세요."},
  {t:"미리보기로 내용을 확인한 뒤, 최종적으로 게시 버튼을 눌러주세요."}
 ];
@@ -1053,8 +1054,21 @@ function renderCoach(){
   if(a==="right"){ target=R||{left:innerWidth-280,right:innerWidth-12,top:68,bottom:innerHeight-12,width:268,height:innerHeight-80}; cls="t-right"; x=target.left-W-16; }
   if(a==="top"){ target={left:T.left-6,top:8,right:T.right+6,bottom:50,width:T.width+12,height:42}; cls="t-up"; x=innerWidth-W-16; }
   const y = a==="top" ? 56+16 : COACH_Y; // 상단 코치마크: 화면 우측 끝·상단 네비게이션 바에서 각각 16px
+  /* 하이라이트 구멍: 기본은 대상 하나. 중앙은 '버튼 커스텀·브랜딩'과 '설문 문항 카드'를 따로 뚫음 */
+  const pad=(r,p)=>({left:r.left-p,top:r.top-p,right:r.right+p,bottom:r.bottom+p});
+  let holes=[pad(target,4)];
+  if(a==="center"){
+    const b1=document.querySelector('[data-el="button_custom"]')?.getBoundingClientRect(), b2=document.querySelector('[data-el="branding"]')?.getBoundingClientRect();
+    const card=(document.querySelector('.fcard.sel')||document.querySelector('.fcard'))?.getBoundingClientRect();
+    holes=[];
+    if(b1&&b2) holes.push(pad({left:b1.left,top:Math.min(b1.top,b2.top),right:b2.right,bottom:Math.max(b1.bottom,b2.bottom)},8));
+    if(card){ const h=pad(card,6); h.top=Math.max(h.top,Ce.top+56); h.bottom=Math.min(h.bottom,Ce.bottom-4); holes.push(h); }
+    if(!holes.length) holes=[pad(target,4)];
+  }
+  const rr=(h,r=14)=>{const w=h.right-h.left,ht=h.bottom-h.top; r=Math.min(r,w/2,ht/2);
+    return `M${h.left+r},${h.top}H${h.right-r}A${r},${r} 0 0 1 ${h.right},${h.top+r}V${h.bottom-r}A${r},${r} 0 0 1 ${h.right-r},${h.bottom}H${h.left+r}A${r},${r} 0 0 1 ${h.left},${h.bottom-r}V${h.top+r}A${r},${r} 0 0 1 ${h.left+r},${h.top}Z`;};
   const dim=document.createElement("div"); dim.id="coachDim";
-  dim.innerHTML=`<div class="hole" style="left:${target.left-4}px;top:${target.top-4}px;width:${target.width+8}px;height:${target.height+8}px"></div>`;
+  dim.innerHTML=`<svg viewBox="0 0 ${innerWidth} ${innerHeight}" preserveAspectRatio="none"><path fill="rgba(17,24,39,.48)" fill-rule="evenodd" d="M0,0H${innerWidth}V${innerHeight}H0Z ${holes.map(h=>rr(h)).join(" ")}"/></svg>`;
   document.body.appendChild(dim);
   const c=document.createElement("div"); c.className="coach "+cls; c.style.left=x+"px"; c.style.top=y+"px";
   if(a==="top"){ const pb=document.querySelector('[data-el="preview_button"]').getBoundingClientRect(); c.style.setProperty("--tx",(pb.left+pb.width/2-x)+"px"); }
