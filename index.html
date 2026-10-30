@@ -339,12 +339,14 @@ const KOWALLA = "data:image/webp;base64,UklGRpApAABXRUJQVlA4WAoAAAAQAAAAPwEAPwEA
 const qs = new URLSearchParams(location.search);
 const LS = (()=>{try{const t="__t";localStorage.setItem(t,1);localStorage.removeItem(t);return localStorage}catch(e){return null}})();
 const store = { get(k){try{return LS?JSON.parse(LS.getItem(k)):null}catch(e){return null}}, set(k,v){try{LS&&LS.setItem(k,JSON.stringify(v))}catch(e){}} };
+/* 공통 링크(pid 없음)로 들어오면 항상 새 ID. 발급 직후 주소창을 개인 링크(?pid=…&v=…)로 바꿔 새로고침·재접속 시 이어서 진행 */
 let PID = qs.get("pid");
-if(!PID || PID.length<5){ PID = store.get("walla_ut_anon") || ("anon-"+Math.random().toString(36).slice(2,8)); store.set("walla_ut_anon",PID); }
+if(!PID || PID.length<5){ PID = "anon-"+Math.random().toString(36).slice(2,8); }
 const IS_INTERNAL = qs.get("internal")==="1";
 let VARIANT = (qs.get("v")||"").toUpperCase();
 if(!["A","B"].includes(VARIANT)){ VARIANT = store.get("walla_ut_v_"+PID) || (Math.random()<0.5?"A":"B"); }
 store.set("walla_ut_v_"+PID, VARIANT);
+try{ const u=new URL(location.href); u.searchParams.set("pid",PID); u.searchParams.set("v",VARIANT); history.replaceState(null,"",u.toString()); }catch(e){}
 const DEVICE = store.get("walla_ut_dev") || ("d-"+Math.random().toString(36).slice(2,12)); store.set("walla_ut_dev",DEVICE);
 
 /* ---------- 아이콘 ---------- */
@@ -518,6 +520,7 @@ const S = {
  // 측정
  t0:null, coachLog:[], coachStart:null, firstAddT:null, firstAddPlusT:null,
  longAddT:null, lenToggleT:null, m3DoneT:null, phoneAddT:null, m6DoneT:null, previewClickT:null,
+ gaps:[], resumed:false, previewClosed:false, m6Base:null,
  previewOpened:false, publishCount:0, lastPublishT:null, missionStartT:Array(7).fill(null), firstClickChecked:Array(7).fill(false), firstClickCorrect:Array(7).fill(null), lastMissionDoneT:null
 };
 
@@ -528,9 +531,9 @@ function now(){return Date.now()}
 function curMission(){ for(let i=0;i<7;i++) if(!S.done[i] && !S.gaveUp[i]) return i+1; return 8; }
 function track(type, props={}){
   const ev = {event_type:type, user_id:PID, device_id:DEVICE, time:now(), insert_id:PID+"-"+now()+"-"+Math.random().toString(36).slice(2,7),
-    event_properties:Object.assign({variant:VARIANT, current_mission:curMission(), elapsed_ms:S.t0?now()-S.t0:0, coach_mark_active:!!S.coach, viewport_w:innerWidth, is_internal:IS_INTERNAL}, props)};
+    event_properties:Object.assign({variant:VARIANT, current_mission:curMission(), elapsed_ms:S.t0?now()-S.t0:0, coach_mark_active:!!S.coach, viewport_w:innerWidth, is_internal:IS_INTERNAL, resumed:S.resumed}, props)};
   if(type==="Test Started") ev.user_properties = {$set:{variant:VARIANT, is_internal:IS_INTERNAL}};
-  ev._sent=false; queue.push(ev); store.set(LOGKEY,queue);
+  ev._sent=false; queue.push(ev); store.set(LOGKEY,queue); saveState();
   if(IS_INTERNAL||qs.get("debug")==="1") console.log("[UT]",type,ev.event_properties);
   send([ev]);
 }
@@ -548,7 +551,10 @@ function coachOverlap(a,b){
   spans.forEach(([s,e])=>{ const lo=Math.max(a,s), hi=Math.min(b,e); if(hi>lo) t+=hi-lo; });
   return t;
 }
-function seg(a,b){ return (a&&b&&b>=a) ? (b-a)-coachOverlap(a,b) : null; }
+/* 페이지를 떠나 있던 시간(새로고침·창 닫기 후 재접속) 중 [a,b]와 겹치는 부분 */
+function gapOverlap(a,b){ let t=0; S.gaps.forEach(([s,e])=>{ const lo=Math.max(a,s), hi=Math.min(b,e); if(hi>lo) t+=hi-lo; }); return t; }
+function gapTotal(){ return S.gaps.reduce((x,[a,b])=>x+(b-a),0); }
+function seg(a,b){ return (a&&b&&b>=a) ? (b-a)-coachOverlap(a,b)-gapOverlap(a,b) : null; }
 function coachTotal(){ return S.coachLog.reduce((s,[a,b])=>s+(b-a),0); }
 
 /* ---------- 미션 판정 ---------- */
@@ -585,7 +591,7 @@ function check(){
     if(ok && !S.done[i] && !S.gaveUp[i]){
       const t=now(); S.done[i]=t;
       const prev = i===0 ? S.t0 : (S.lastMissionDoneT||S.t0);
-      const dur = t-prev;
+      const dur = t-prev-gapOverlap(prev,t);
       track("Mission Completed",{mission_no:i+1, duration_ms:dur, duration_excl_tutorial_ms:dur-coachOverlap(prev,t), first_click_correct:S.firstClickCorrect[i]});
       S.lastMissionDoneT=t;
       if(i===2) S.m3DoneT=t;
@@ -645,6 +651,7 @@ function render(){
   if(S.screen==="start") return renderStart();
   if(S.screen==="end") return renderEnd();
   if(S.screen==="out") return renderOut();
+  if(S.screen==="done") return renderDone();
   const sc=document.querySelector(".canvas"); const st=sc?sc.scrollTop:0;
   const ls=document.querySelector(".flist"); const lst=ls?ls.scrollTop:0;
   $app.innerHTML = editorHTML();
@@ -653,6 +660,7 @@ function render(){
   bindEditor();
   placePops();
   renderCoach();
+  saveState();
 }
 
 function renderStart(){
@@ -1116,19 +1124,52 @@ function publish(){
   const segs=[seg(S.firstAddT,S.firstAddPlusT), seg(S.longAddT,S.lenToggleT), seg(S.m3DoneT,S.phoneAddT), seg(S.m6DoneT,S.previewClickT)];
   const find = segs.every(v=>v!==null) ? segs.reduce((a,b)=>a+b,0) : null;
   const ct=coachTotal();
-  track("Survey Published",{publish_count:S.publishCount, session_ms:t-S.t0, session_excl_coach_ms:t-S.t0-ct, find_time_excl_coach_ms:find,
+  const gt=gapTotal();
+  track("Survey Published",{publish_count:S.publishCount, session_ms:t-S.t0-gt, session_excl_coach_ms:t-S.t0-gt-ct, gap_total_ms:gt, resume_count:S.gaps.length, find_time_excl_coach_ms:find,
     find_seg1_ms:segs[0], find_seg2_ms:segs[1], find_seg3_ms:segs[2], find_seg4_ms:segs[3], coach_time_total_ms:ct, missions_done:S.done.filter(Boolean).length});
   render();
   setTimeout(()=>{ S.toast=false; if(S.screen==="editor"){ S.endAsk=true; render(); } },2000);
 }
-function finish(){ flush(); S.screen="end"; S.endAsk=false; render(); }
+function finish(){ flush(); S.screen="end"; S.endAsk=false; saveState(); render(); }
 
+
+/* ---------- 이어서 진행: 상태 저장·복원 ---------- */
+const STKEY="walla_ut_state_"+PID;
+const PERSIST=["screen","fields","sel","uid","published","allDone","card","done","gaveUp","coachSeen","coachOff","coach","coachStart","t0","coachLog",
+ "firstAddT","firstAddPlusT","longAddT","lenToggleT","m3DoneT","phoneAddT","m6DoneT","previewClickT","previewOpened","previewClosed","publishCount","lastPublishT",
+ "missionStartT","firstClickChecked","firstClickCorrect","lastMissionDoneT","m6Base","gaps","resumed","pvMode","_deletedLongInM6"];
+function saveState(){
+  if(!["editor","end"].includes(S.screen)) return;
+  const o={}; PERSIST.forEach(k=>o[k]=S[k]); o.lastActiveT=now(); store.set(STKEY,o);
+}
+function resumeIfAny(){
+  const sv=store.get(STKEY); if(!sv||!sv.screen) return;
+  if(sv.published || sv.screen==="end"){ S.screen="done"; return; }
+  if(sv.screen!=="editor") return;
+  const leave=sv.lastActiveT||now(), back=now();
+  PERSIST.forEach(k=>{ if(k in sv) S[k]=sv[k]; });
+  if(S.coach){ const a=S.coach; S.coachLog.push([S.coachStart||leave, leave]); S.coachStart=null; S.coach=null;
+    track("Coach Mark Closed",{area:a, method:"interrupted", duration_ms:leave-(sv.coachStart||leave)}); }
+  S.gaps.push([leave,back]); S.resumed=true;
+  S.pop=null; S.preview=false; S.settings=false; S.endAsk=false; S.toast=false; S.loading=false; S.detail=null;
+  if(S.card<=6 && (S.done[S.card]||S.gaveUp[S.card])){ S.card=curMission()-1; if(S.card>6) S.allDone=true; }
+  track("Session Resumed",{gap_ms:back-leave, resume_count:S.gaps.length});
+}
+function renderDone(){
+  const link=surveyLink();
+  $app.innerHTML=`<div class="page"><div class="sheet" style="text-align:center">
+   <h1>이미 참여를 마쳤어요</h1><p class="sub" style="margin:10px 0 0;line-height:1.7">이 참여자 번호로는 테스트를 다시 진행할 수 없어요.<br>아직 설문에 답하지 않으셨다면 아래 버튼으로 답해 주세요.</p>
+   ${link?`<a class="cta" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="${esc(link)}">설문 답하러 가기</a>`:""}
+   <p class="note">참여자 번호</p><p style="margin-top:6px;font-size:20px;font-weight:700">${esc(PID)}</p></div></div>`;
+}
+setInterval(()=>{ if(S.screen==="editor") saveState(); },5000);
+addEventListener("pagehide",saveState);
 
 /* 화면 폭 */
 function checkWidth(){ document.getElementById("narrow").classList.toggle("hidden", innerWidth>=CONFIG.MIN_WIDTH); }
 addEventListener("resize",()=>{checkWidth(); if(S.screen==="editor"){placePops(); renderCoach();}});
 addEventListener("pagehide",flush);
-checkWidth(); render();
+checkWidth(); resumeIfAny(); render();
 </script>
 </body>
 </html>
