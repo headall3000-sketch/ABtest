@@ -37,6 +37,9 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .opts{display:flex;gap:8px;flex-wrap:wrap}
 .opt{border:1px solid var(--line);border-radius:10px;padding:9px 16px;color:var(--ink2)}
 .opt.on{border-color:var(--blue);background:var(--blue-l);color:var(--blue-d);font-weight:600}
+.opts.col{flex-direction:column}
+.opts.col .opt{display:flex;gap:10px;text-align:left;padding:9px 14px}
+.opts.col .opt b{width:16px;flex:none}
 .note{font-size:13px;color:var(--ink3);line-height:1.6;margin-top:22px}
 .cta{margin-top:24px;width:100%;height:52px;border-radius:12px;background:var(--blue);color:#fff;font-weight:600;font-size:16px}
 .cta:disabled{background:#C9D3DF;cursor:not-allowed}
@@ -356,7 +359,7 @@ async function assignVariant(){
   if(CONFIG.ASSIGN_URL){
     try{
       const ac=new AbortController(); const to=setTimeout(()=>ac.abort(),4000);
-      const r=await fetch(CONFIG.ASSIGN_URL+"?action=assign&pid="+encodeURIComponent(PID)+(IS_INTERNAL?"&internal=1":""),{signal:ac.signal});
+      const r=await fetch(CONFIG.ASSIGN_URL+"?action=assign&pid="+encodeURIComponent(PID)+"&stratum="+stratum()+(IS_INTERNAL?"&internal=1":""),{signal:ac.signal});
       clearTimeout(to); const j=await r.json();
       if(j && (j.variant==="A"||j.variant==="B")){ VARIANT=j.variant; ASSIGN_METHOD="balanced"; }
     }catch(e){}
@@ -531,7 +534,7 @@ const S = {
  pop:null,          // {kind:'catalog'|'menu'|'cc'|'share', ...}
  catQuery:"", catTab:"basic",
  preview:false, pvMode:"desk", settings:false, endAsk:false, toast:false, published:false,
- detail:null, card:0, allDone:false,
+ detail:null, card:0, allDone:false, prof:null, formExp:null,
  done:Array(7).fill(null), gaveUp:Array(7).fill(false),
  coachSeen:{}, coach:null, coachOff:false, pending:null,
  // 측정
@@ -549,7 +552,7 @@ function curMission(){ for(let i=0;i<7;i++) if(!S.done[i] && !S.gaveUp[i]) retur
 function track(type, props={}){
   const ev = {event_type:type, user_id:PID, device_id:DEVICE, time:now(), insert_id:PID+"-"+now()+"-"+Math.random().toString(36).slice(2,7),
     event_properties:Object.assign({variant:VARIANT, current_mission:curMission(), elapsed_ms:S.t0?now()-S.t0:0, coach_mark_active:!!S.coach, viewport_w:innerWidth, is_internal:IS_INTERNAL, resumed:S.resumed}, props)};
-  if(type==="Test Started") ev.user_properties = {$set:{variant:VARIANT, is_internal:IS_INTERNAL}};
+  if(type==="Test Started") ev.user_properties = {$set:Object.assign({variant:VARIANT, is_internal:IS_INTERNAL, assignment:ASSIGN_METHOD}, profileProps())};
   ev._sent=false; queue.push(ev); store.set(LOGKEY,queue); saveState();
   if(IS_INTERNAL||qs.get("debug")==="1") console.log("[UT]",type,ev.event_properties);
   send([ev]);
@@ -680,19 +683,32 @@ function render(){
   saveState();
 }
 
+/* 사전 질문 2개 → 묶음(stratum): 능숙 = 능숙도 4~5 이면서 설문 제작 경험 있음, 나머지 = 보통.
+   경험 '없음'도 받되 form_exp_none 으로 표시해 분석에서 따로 볼 수 있게 함 */
+const PROF=["인터넷 검색 정도만 해요","메신저·간단한 문서 작성 정도 해요","문서·엑셀을 무리 없이 다뤄요","여러 프로그램을 능숙하게 써요","처음 보는 프로그램도 혼자 금방 익혀요"];
+const FORMEXP=[["none","없음"],["1-2","1~2회"],["3+","3회 이상"]];
+function stratum(){ return (S.prof>=4 && S.formExp && S.formExp!=="none") ? "high" : "normal"; }
+function profileProps(){ return {proficiency:S.prof, form_exp:S.formExp, form_exp_none:S.formExp==="none", stratum:stratum()}; }
 function renderStart(){
   $app.innerHTML = `<div class="page"><div class="sheet">
    <h1>설문 만들기 테스트</h1><p class="sub">약 15분 · 미션을 마친 뒤 2분 설문</p>
    <div class="sit"><b>미션 안내</b><br>왈라에서 설문 하나를 만들어 보는 테스트예요. 아래 미션 7가지를 순서대로 수행하면 설문이 완성돼요. 어떤 설문을 만드는지 먼저 훑어보고 시작해 주세요.</div>
    <ol class="mlist" style="margin-top:16px">${MISSIONS.map(m=>`<li>${esc(m.t)}</li>`).join("")}</ol>
+   <h2>시작 전에 두 가지만 알려 주세요</h2>
+   <div class="q"><p>1. 컴퓨터를 얼마나 능숙하게 다루시나요?</p><div class="opts col">
+     ${PROF.map((t,i)=>`<button class="opt ${S.prof===i+1?"on":""}" data-prof="${i+1}"><b>${i+1}</b>${t}</button>`).join("")}</div></div>
+   <div class="q"><p>2. 설문 폼 서비스(구글폼, 네이버폼, 타입폼 등)로 설문을 만들어 본 적이 있나요?</p><div class="opts">
+     ${FORMEXP.map(([k,t])=>`<button class="opt ${S.formExp===k?"on":""}" data-fexp="${k}">${t}</button>`).join("")}</div></div>
    <p class="note">테스트 중에는 오른쪽 아래 미션 카드에서 지금 할 미션과 성공 조건을 볼 수 있어요. 정답은 없어요. 막히면 그만두고 설문으로 넘어가셔도 괜찮아요.<br>이 테스트는 교육 프로젝트이며 개인정보는 수집하지 않아요. 입력한 문구는 기록하지 않아요.</p>
-   <button class="cta" id="go">테스트 시작하기 (약 15분)</button>
+   <button class="cta" id="go" ${S.prof&&S.formExp?"":"disabled"}>테스트 시작하기 (약 15분)</button>
   </div></div>`;
+  $app.querySelectorAll("[data-prof]").forEach(b=>b.onclick=()=>{ S.prof=+b.dataset.prof; renderStart(); });
+  $app.querySelectorAll("[data-fexp]").forEach(b=>b.onclick=()=>{ S.formExp=b.dataset.fexp; renderStart(); });
   document.getElementById("go").onclick=async()=>{
-    const go=document.getElementById("go"); if(go.disabled) return;
+    const go=document.getElementById("go"); if(go.disabled||!S.prof||!S.formExp) return;
     go.disabled=true; go.textContent="테스트를 준비하고 있어요…";
     await assignVariant();
-    track("Test Started",{assignment:ASSIGN_METHOD});
+    track("Test Started",Object.assign({assignment:ASSIGN_METHOD}, profileProps()));
     S.screen="editor"; S.t0=now(); S.missionStartT[0]=S.t0;
     render();
     track("Editor Viewed",{first_screen: VARIANT==="A"?"catalog":"empty_state"});
@@ -1146,7 +1162,7 @@ function publish(){
   const ct=coachTotal();
   const gt=gapTotal();
   track("Survey Published",{publish_count:S.publishCount, session_ms:t-S.t0-gt, session_excl_coach_ms:t-S.t0-gt-ct, gap_total_ms:gt, resume_count:S.gaps.length, find_time_excl_coach_ms:find,
-    find_seg1_ms:segs[0], find_seg2_ms:segs[1], find_seg3_ms:segs[2], find_seg4_ms:segs[3], coach_time_total_ms:ct, missions_done:S.done.filter(Boolean).length});
+    find_seg1_ms:segs[0], find_seg2_ms:segs[1], find_seg3_ms:segs[2], find_seg4_ms:segs[3], coach_time_total_ms:ct, missions_done:S.done.filter(Boolean).length, ...profileProps()});
   render();
   setTimeout(()=>{ S.toast=false; if(S.screen==="editor"){ S.endAsk=true; render(); } },2000);
 }
@@ -1155,7 +1171,7 @@ function finish(){ flush(); S.screen="end"; S.endAsk=false; saveState(); render(
 
 /* ---------- 이어서 진행: 상태 저장·복원 ---------- */
 const STKEY="walla_ut_state_"+PID;
-const PERSIST=["screen","fields","sel","uid","published","allDone","card","done","gaveUp","coachSeen","coachOff","coach","coachStart","t0","coachLog",
+const PERSIST=["screen","prof","formExp","fields","sel","uid","published","allDone","card","done","gaveUp","coachSeen","coachOff","coach","coachStart","t0","coachLog",
  "firstAddT","firstAddPlusT","longAddT","lenToggleT","m3DoneT","phoneAddT","m6DoneT","previewClickT","previewOpened","previewClosed","publishCount","lastPublishT",
  "missionStartT","firstClickChecked","firstClickCorrect","lastMissionDoneT","m6Base","gaps","resumed","pvMode","_deletedLongInM6"];
 function saveState(){
