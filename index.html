@@ -524,7 +524,7 @@ const MISSIONS = [
  {t:"설문 필드에서 여러 이미지 중 하나를 고르는 문항을 만들고, 이미지 옵션을 3개로 만들어 주세요."},
  {t:"설문 필드에서 연락처 수집을 할 수 있는 문항을 만들어주세요."},
  {t:"설문 필드에서 개인 정보 수집 이용 동의를 받는 문항을 추가해 주세요."},
- {t:"지금까지 만든 문항에서 두번째로 만든 서술형 문항을 가장 아래로 이동시켜 주세요."},
+ {t:"지금까지 만든 문항 중, 전화번호 문항을 가장 아래로 내려주세요."},
  {t:"미리보기로 내용을 확인한 뒤, 최종적으로 게시 버튼을 눌러주세요."}
 ];
 
@@ -539,7 +539,7 @@ const CRIT = [
  [["설문 필드에서 ‘전화번호’ 필드 추가", F=>F.some(f=>f.type==="phone")]],
  [["설문 필드에서 ‘개인정보 수집’ 필드 추가", F=>F.some(f=>f.type==="consent")],
   ["필수 입력 활성화", F=>F.some(f=>f.type==="consent"&&f.required)]],
- [["장문형 문항 위치를 가장 하단으로 변경", F=>m6ok(F)],
+ [["‘전화번호’ 문항 위치를 가장 하단으로 변경", F=>m6ok(F)],
   ["다른 문항 순서는 그대로 유지", F=>othersKept(F)]],
  [["미리보기 화면 확인 후 닫기", ()=>S.previewOpened&&S.previewClosed],["게시하기 버튼 누르기", ()=>S.published]]
 ];
@@ -595,19 +595,20 @@ function coachTotal(){ return S.coachLog.reduce((s,[a,b])=>s+(b-a),0); }
 
 /* ---------- 미션 판정 ---------- */
 function longMin50(f){ return f.type==="long" && f.len.on && Number(f.len.min)===50; }
-/* 미션 6: 마지막 문항이 장문형(미션 2를 했으면 최소 50 유지)이고, 그 문항보다 나중에 만든 문항이 위에 있음(=아래로 옮김) */
+/* 미션 6: 마지막 문항이 전화번호이고, 실제로 아래로 옮겼음
+   (그 문항보다 나중에 만든 문항이 위에 있거나, 미션 6 시작 시점엔 맨 아래가 아니었음) */
 const fnum = f => +f.id.slice(1);
 function m6ok(F){
   if(F.length<2) return false;
   const last=F[F.length-1];
-  if(last.type!=="long") return false;
-  if(S.done[1] && !longMin50(last)) return false;
-  return F.some(f=>fnum(f)>fnum(last));
+  if(last.type!=="phone") return false;
+  if(F.some(f=>fnum(f)>fnum(last))) return true;
+  return !!(S.m6Base && S.m6Base.length && S.m6Base[S.m6Base.length-1]!==last.id);
 }
 /* 미션 6 '다른 문항 순서 유지': 미션 6이 시작될 때의 순서(없으면 만든 순서)와 나머지 문항의 상대 순서가 같음 */
 function othersKept(F){
   const last=F[F.length-1];
-  const others=F.filter(f=>!(f===last&&f.type==="long")).map(f=>f.id);
+  const others=F.filter(f=>!(f===last&&f.type==="phone")).map(f=>f.id);
   const base=(S.m6Base||F.slice().sort((a,b)=>fnum(a)-fnum(b)).map(f=>f.id)).filter(id=>others.includes(id));
   const o=others.filter(id=>base.includes(id));
   return o.length===base.length && o.every((id,k)=>id===base[k]);
@@ -657,14 +658,14 @@ function addField(type, source, at){
   const c=curMission();
   if(c===4 && (type==="number"||type==="short") && !S.fields.some(x=>x.type==="phone")) track("Workaround Detected",{type: type==="number"?"phone_as_number":"phone_as_short_text"});
   if(c===5 && (type==="multi"||type==="choice") && !S.fields.some(x=>x.type==="consent")) track("Workaround Detected",{type:"consent_as_checkbox"});
-  if(c===6 && type==="long" && S._deletedLongInM6) track("Workaround Detected",{type:"delete_recreate"});
+  if(c===6 && type==="phone" && S._deletedPhoneInM6) track("Workaround Detected",{type:"delete_recreate"});
   check(); render();
   requestAnimationFrame(()=>{const el=document.querySelector(`.fcard[data-id="${f.id}"]`); el&&el.scrollIntoView({block:"center",behavior:"smooth"});});
 }
 function delField(id){
   const i=S.fields.findIndex(f=>f.id===id); if(i<0) return;
   const f=S.fields[i]; S.fields.splice(i,1);
-  if(curMission()===6 && longMin50(f)) S._deletedLongInM6=true;
+  if(curMission()===6 && f.type==="phone") S._deletedPhoneInM6=true;
   if(S.sel===id) S.sel=null;
   track("Field Deleted",{field_type:f.type}); check(); render();
 }
@@ -1226,7 +1227,7 @@ function finish(){ flush(); S.screen="end"; S.endAsk=false; saveState(); render(
 const STKEY="walla_ut_state_"+PID;
 const PERSIST=["screen","prof","formExp","fields","sel","uid","published","allDone","card","done","gaveUp","coachSeen","coachOff","coach","coachStart","t0","coachLog",
  "firstAddT","firstAddPlusT","longAddT","lenToggleT","m3DoneT","phoneAddT","m6DoneT","previewClickT","previewOpened","previewClosed","publishCount","lastPublishT",
- "missionStartT","firstClickChecked","firstClickCorrect","lastMissionDoneT","m6Base","gaps","resumed","pvMode","_deletedLongInM6"];
+ "missionStartT","firstClickChecked","firstClickCorrect","lastMissionDoneT","m6Base","gaps","resumed","pvMode","_deletedPhoneInM6"];
 function saveState(){
   if(!["editor","end"].includes(S.screen)) return;
   const o={}; PERSIST.forEach(k=>o[k]=S[k]); o.lastActiveT=now(); store.set(STKEY,o);
