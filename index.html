@@ -700,20 +700,33 @@ const FORMEXP=[["none","없음"],["1-2","1~2회"],["3+","3회 이상"]];
 function stratum(){ return (S.prof>=4 && S.formExp && S.formExp!=="none") ? "high" : "normal"; }
 function profileProps(){ return {proficiency:S.prof, form_exp:S.formExp, form_exp_none:S.formExp==="none", stratum:stratum()}; }
 function renderStart(){
+  if(S.startStep!==2){
+    // 1단계: 사전 질문
+    $app.innerHTML = `<div class="page"><div class="sheet">
+     <h1>설문 만들기 테스트</h1><p class="sub">약 15분 · 미션을 마친 뒤 2분 설문</p>
+     <h2 style="margin-top:4px">시작 전에 두 가지만 알려 주세요</h2>
+     <div class="q"><p>1. 컴퓨터를 얼마나 능숙하게 다루시나요?</p><div class="opts col">
+       ${PROF.map((t,i)=>`<button class="opt ${S.prof===i+1?"on":""}" data-prof="${i+1}"><b>${i+1}</b>${t}</button>`).join("")}</div></div>
+     <div class="q"><p>2. 설문 폼 서비스(구글폼, 네이버폼, 타입폼 등)로 설문을 만들어 본 적이 있나요?</p><div class="opts">
+       ${FORMEXP.map(([k,t])=>`<button class="opt ${S.formExp===k?"on":""}" data-fexp="${k}">${t}</button>`).join("")}</div></div>
+     <p class="note">이 테스트는 교육 프로젝트이며 개인정보는 수집하지 않아요.</p>
+     <button class="cta" id="next" ${S.prof&&S.formExp?"":"disabled"}>다음</button>
+    </div></div>`;
+    $app.querySelectorAll("[data-prof]").forEach(b=>b.onclick=()=>{ S.prof=+b.dataset.prof; renderStart(); });
+    $app.querySelectorAll("[data-fexp]").forEach(b=>b.onclick=()=>{ S.formExp=b.dataset.fexp; renderStart(); });
+    document.getElementById("next").onclick=()=>{ if(!S.prof||!S.formExp) return; S.startStep=2; renderStart(); scrollTo(0,0); };
+    return;
+  }
+  // 2단계: 미션 안내
   $app.innerHTML = `<div class="page"><div class="sheet">
    <h1>설문 만들기 테스트</h1><p class="sub">약 15분 · 미션을 마친 뒤 2분 설문</p>
    <div class="sit"><b>미션 안내</b><br>왈라에서 설문 하나를 만들어 보는 테스트예요. 아래 미션 7가지를 순서대로 수행하면 설문이 완성돼요. 어떤 설문을 만드는지 먼저 훑어보고 시작해 주세요.</div>
    <ol class="mlist" style="margin-top:16px">${MISSIONS.map(m=>`<li>${esc(m.t)}</li>`).join("")}</ol>
-   <h2>시작 전에 두 가지만 알려 주세요</h2>
-   <div class="q"><p>1. 컴퓨터를 얼마나 능숙하게 다루시나요?</p><div class="opts col">
-     ${PROF.map((t,i)=>`<button class="opt ${S.prof===i+1?"on":""}" data-prof="${i+1}"><b>${i+1}</b>${t}</button>`).join("")}</div></div>
-   <div class="q"><p>2. 설문 폼 서비스(구글폼, 네이버폼, 타입폼 등)로 설문을 만들어 본 적이 있나요?</p><div class="opts">
-     ${FORMEXP.map(([k,t])=>`<button class="opt ${S.formExp===k?"on":""}" data-fexp="${k}">${t}</button>`).join("")}</div></div>
-   <p class="note">테스트 중에는 오른쪽 아래 미션 카드에서 지금 할 미션과 성공 조건을 볼 수 있어요. 정답은 없어요. 막히면 그만두고 설문으로 넘어가셔도 괜찮아요.<br>이 테스트는 교육 프로젝트이며 개인정보는 수집하지 않아요. 입력한 문구는 기록하지 않아요.</p>
-   <button class="cta" id="go" ${S.prof&&S.formExp?"":"disabled"}>테스트 시작하기 (약 15분)</button>
+   <p class="note">테스트 중에는 오른쪽 아래 미션 카드에서 지금 할 미션과 성공 조건을 볼 수 있어요. 정답은 없어요. 막히면 그만두고 설문으로 넘어가셔도 괜찮아요.<br>입력한 문구는 기록하지 않아요.</p>
+   <button class="cta" id="go">테스트 시작하기 (약 15분)</button>
+   <button class="cta sec" id="back" style="margin-top:10px">이전</button>
   </div></div>`;
-  $app.querySelectorAll("[data-prof]").forEach(b=>b.onclick=()=>{ S.prof=+b.dataset.prof; renderStart(); });
-  $app.querySelectorAll("[data-fexp]").forEach(b=>b.onclick=()=>{ S.formExp=b.dataset.fexp; renderStart(); });
+  document.getElementById("back").onclick=()=>{ S.startStep=1; renderStart(); };
   document.getElementById("go").onclick=async()=>{
     const go=document.getElementById("go"); if(go.disabled||!S.prof||!S.formExp) return;
     go.disabled=true; go.textContent="테스트를 준비하고 있어요…";
