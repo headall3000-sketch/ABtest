@@ -222,6 +222,7 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .tt{position:fixed;z-index:80;background:#1F2937;color:#fff;font-size:12.5px;line-height:1.5;border-radius:9px;padding:8px 11px;max-width:260px;pointer-events:none}
 .tt b{display:block;font-weight:600;margin-bottom:2px}
 .tip{position:fixed;z-index:80;width:280px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.16);overflow:hidden;pointer-events:none}
+.tip .ex img{display:block;width:100%;height:200px;object-fit:contain;background:#fff;border-bottom:1px solid var(--line2)}
 .tip .ex{height:130px;background:repeating-linear-gradient(45deg,#F4F6F8 0 10px,#EEF1F4 10px 20px);display:grid;place-items:center;color:var(--ink4);font-size:12px}
 .tip .tx{padding:12px 14px 14px;line-height:1.55;color:var(--ink2);font-size:13px}
 .tip .tx b{display:block;color:var(--ink);font-size:14px;margin-bottom:3px}
@@ -237,6 +238,7 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .coach .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .coach .ch b{font-size:16px}
 .coach .ch button{color:#fff;opacity:.85;width:26px;height:26px;display:grid;place-items:center;border-radius:7px}
+.coach video.gif{display:block;width:100%;height:auto;aspect-ratio:720/390;object-fit:cover;background:#fff;margin-bottom:12px;border-radius:10px}
 .coach .gif{height:120px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:12px;color:rgba(255,255,255,.75);margin-bottom:12px}
 .coach ul{list-style:none;display:grid;gap:8px;margin-bottom:14px}
 .coach li{line-height:1.5;font-size:13.5px}
@@ -486,6 +488,14 @@ const TIPS = {
  easypay:"설문 안에서 간편하게 결제를 받을 수 있어요.",
  drop_out:"조건에 맞지 않는 응답자의 설문을 바로 끝낼 수 있어요."
 };
+/* B안 미리보기 팁 이미지가 있는 필드 (assets/tip_<key>.webp) — 없는 필드는 설명만 보여 줌 */
+const TIP_IMG = new Set(["choice","multi","photo","dropdown","dropdown_m","scale","matrix","matrix_m","rank","consent","short","long","number","table","shot","movie","upload","phone","email","address","desc","date","time"]);
+/* B안: 시작하자마자 코치마크 영상·팁 이미지를 미리 받아 두어, 처음 뜰 때 로딩 시간이 측정에 섞이지 않게 함 */
+function preloadB(){
+  if(VARIANT!=="B") return;
+  ["left","center","right","top"].forEach(a=>{ const v=document.createElement("video"); v.preload="auto"; v.muted=true; v.src="assets/coach_"+a+".mp4"; v.load(); });
+  TIP_IMG.forEach(k=>{ const i=new Image(); i.src="assets/tip_"+k+".webp"; });
+}
 /* B안 아이콘 툴팁 (팀 확정) */
 const TOOLTIPS = {
  settings_button:["설문 설정","설문의 기본 설정과 응답 수집 방식을 관리할 수 있어요."],
@@ -712,6 +722,7 @@ function renderStart(){
     S.screen="editor"; S.t0=now(); S.missionStartT[0]=S.t0;
     render();
     track("Editor Viewed",{first_screen: VARIANT==="A"?"catalog":"empty_state"});
+    preloadB();
   };
 }
 function renderOut(){
@@ -1028,7 +1039,7 @@ function renderCoach(){
   if(a==="top"){ const pb=document.querySelector('[data-el="preview_button"]').getBoundingClientRect(); c.style.setProperty("--tx",(pb.left+pb.width/2-x)+"px"); }
   const n=COACH_ORDER.filter(k=>S.coachSeen[k]).length;
   c.innerHTML=`<div class="ch"><b>${cfg.title}</b><button data-c="close" aria-label="닫기">${ic("x")}</button></div>
-   <div class="gif">GIF 자리 (5초 안팎)</div>
+   <video class="gif" src="assets/coach_${a}.mp4" autoplay muted loop playsinline preload="auto"></video>
    <ul>${cfg.items.map(([h,d,icn])=>icn?`<li class="hasic">${ic(icn)}<div><b>${h}</b>${d}</div></li>`:`<li><b>${h}</b>${d}</li>`).join("")}</ul>
    <div class="cf"><span>${n}/4</span><button data-c="confirm">${cfg.last?"완료":"확인"}</button></div>`;
   document.body.appendChild(c);
@@ -1075,8 +1086,8 @@ function bindEditor(){
     });
     document.querySelectorAll(".catalog.pop .citem").forEach(b=>{
       b.onmouseenter=()=>{ hideTip(); tipTimer=setTimeout(()=>{ if(S.coach) return; const k=b.dataset.type; tipEl=document.createElement("div"); tipEl.className="tip";
-        tipEl.innerHTML=`<div class="ex">예시 이미지 자리</div><div class="tx"><b>${TYPES[k].name}</b>${TIPS[k]||""}</div>`; document.body.appendChild(tipEl);
-        const r=b.getBoundingClientRect(); let x=r.right+10; if(x+290>innerWidth) x=r.left-290; tipEl.style.left=x+"px"; tipEl.style.top=Math.max(10,Math.min(innerHeight-260,r.top-40))+"px"; },700); };
+        tipEl.innerHTML=`${TIP_IMG.has(k)?`<div class="ex"><img src="assets/tip_${k}.webp" alt=""></div>`:""}<div class="tx"><b>${TYPES[k].name}</b>${TIPS[k]||""}</div>`; document.body.appendChild(tipEl);
+        const r=b.getBoundingClientRect(); let x=r.right+10; if(x+290>innerWidth) x=r.left-290; tipEl.style.left=x+"px"; tipEl.style.top=Math.max(10,Math.min(innerHeight-tipEl.offsetHeight-10,r.top-40))+"px"; },700); };
       b.onmouseleave=hideTip;
     });
   }
@@ -1205,7 +1216,7 @@ addEventListener("pagehide",saveState);
 function checkWidth(){ document.getElementById("narrow").classList.toggle("hidden", innerWidth>=CONFIG.MIN_WIDTH); }
 addEventListener("resize",()=>{checkWidth(); if(S.screen==="editor"){placePops(); renderCoach();}});
 addEventListener("pagehide",flush);
-checkWidth(); resumeIfAny(); render();
+checkWidth(); resumeIfAny(); render(); if(S.screen==="editor") preloadB();
 </script>
 </body>
 </html>
