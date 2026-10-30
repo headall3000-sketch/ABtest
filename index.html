@@ -166,7 +166,11 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .ccpop .row span:last-child{margin-left:auto;color:var(--ink3)}
 .ccpop .list{max-height:260px;overflow:auto}
 .photos{display:flex;gap:16px;flex-wrap:wrap}
-.pcard{width:290px;background:#F8F9FA;border-radius:14px;padding:8px}
+.pcard{position:relative;width:290px;background:#F8F9FA;border-radius:14px;padding:8px}
+.pdel{position:absolute;top:14px;right:14px;z-index:2;width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.95);border:1px solid var(--line);color:var(--ink3);display:none;place-items:center}
+.pdel svg.i{width:14px;height:14px}
+.pcard:hover .pdel{display:grid}
+.pdel:hover{color:var(--red)}
 .pimg{height:260px;border:1px dashed #DDE1E5;border-radius:10px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--ink3)}
 .popt{display:flex;align-items:center;justify-content:space-between;padding:12px 8px 6px;color:#B9C0C8}
 .radio{width:22px;height:22px;border-radius:50%;border:5px solid #DADDE1;background:#fff;flex:none}
@@ -516,7 +520,7 @@ const COACH_Y = 140; // 네 코치마크 모두 같은 높이
 const MISSIONS = [
  {t:"설문 필드에서 인터뷰 희망 날짜를 받는 문항을 만들어 주세요."},
  {t:"설문 필드에서 최소 50자 이상 자세히 작성할 수 있는 서술형 문항을 만들어주세요."},
- {t:"설문 필드에서 여러 이미지 중 하나를 고르는 문항을 만들어주세요."},
+ {t:"설문 필드에서 여러 이미지 중 하나를 고르는 문항을 만들고, 이미지 옵션을 3개로 만들어 주세요."},
  {t:"설문 필드에서 연락처 수집을 할 수 있는 문항을 만들어주세요."},
  {t:"설문 필드에서 개인 정보 수집 이용 동의를 받는 문항을 추가해 주세요."},
  {t:"추가한 설문 문항에서 미션 2에서 만든 서술형 문항을 가장 아래로 이동시켜 주세요."},
@@ -529,7 +533,8 @@ const CRIT = [
  [["설문 필드에서 ‘날짜’ 필드 추가", F=>F.some(f=>f.type==="date")]],
  [["설문 필드에서 ‘장문형’ 필드 추가", F=>F.some(f=>f.type==="long")],
   ["응답 길이 제한 ‘최소 50자’ 이상", F=>F.some(longMin50)]],
- [["설문 필드에서 ‘사진 선택’ 필드 추가", F=>F.some(f=>f.type==="photo")]],
+ [["설문 필드에서 ‘사진 선택’ 필드 추가", F=>F.some(f=>f.type==="photo")],
+  ["이미지 옵션 3개 만들기", F=>F.some(f=>f.type==="photo"&&f.opts.length===3)]],
  [["설문 필드에서 ‘전화번호’ 필드 추가", F=>F.some(f=>f.type==="phone")]],
  [["설문 필드에서 ‘개인정보 수집’ 필드 추가", F=>F.some(f=>f.type==="consent")],
   ["필수 입력 활성화", F=>F.some(f=>f.type==="consent"&&f.required)]],
@@ -611,7 +616,7 @@ function check(){
   const cond = [
     has("date"),
     F.some(longMin50),
-    has("photo"),
+    F.some(f=>f.type==="photo" && f.opts.length===3),
     has("phone"),
     F.some(f=>f.type==="consent" && f.required),
     m6ok(F) && othersKept(F),
@@ -831,7 +836,7 @@ function cardHTML(f,i){
     case "short": case "email": case "address": case "number": body=`<div class="box">답변을 입력해주세요</div>`; break;
     case "phone": body=`<div class="box phonebox"><button class="ccbtn" data-el="country_select" data-cc="${f.id}">${f.country==="auto"?ic("globe"):`<span>${f.country}</span>`}${ic("ud","ud")}</button>010-2000-0000
         ${S.pop&&S.pop.kind==="cc"&&S.pop.id===f.id?ccHTML(f):""}</div>`; break;
-    case "photo": body=`<div class="photos">${f.opts.map(()=>`<div class="pcard"><div class="pimg" data-el="photo_add_image">${ic("imgadd")}이미지 추가</div><div class="popt">옵션을 입력해주세요<span class="radio"></span></div></div>`).join("")}</div>
+    case "photo": body=`<div class="photos">${f.opts.map((o,oi)=>`<div class="pcard">${f.opts.length>1?`<button class="pdel" data-el="delete_option" data-delopt="${f.id}:${oi}" aria-label="옵션 삭제">${ic("x")}</button>`:""}<div class="pimg" data-el="photo_add_image">${ic("imgadd")}이미지 추가</div><div class="popt">옵션을 입력해주세요<span class="radio"></span></div></div>`).join("")}</div>
         <div class="hint">옵션 값 미입력 시 빈 값으로 수집됩니다</div>
         <div class="addopt"><button data-el="add_option" data-addopt="${f.id}">${ic("plus")}옵션 추가</button><button class="more" data-el="field_more">${ic("dotsh")}</button></div>`; break;
     case "consent": return consentCard(f,i);
@@ -1145,7 +1150,8 @@ document.addEventListener("click",e=>{
   if(id==="country_select"){ const fid=t.closest("[data-cc]").dataset.cc; S.sel=fid; S.pop=(S.pop&&S.pop.kind==="cc")?null:{kind:"cc",id:fid}; return render(); }
   const cp=t.closest("[data-cpick]"); if(cp){ const f=S.fields.find(x=>x.id===S.pop.id); f.country=cp.dataset.cpick; track("Field Setting Changed",{field_type:"phone",setting_key:"country",value:f.country}); S.pop=null; return render(); }
   if(t.closest(".ccpop")) return;
-  if(t.closest("[data-addopt]")){ const f=S.fields.find(x=>x.id===t.closest("[data-addopt]").dataset.addopt); f.opts.push(""); return render(); }
+  if(t.closest("[data-addopt]")){ const f=S.fields.find(x=>x.id===t.closest("[data-addopt]").dataset.addopt); f.opts.push(""); track("Field Setting Changed",{field_type:f.type,setting_key:"option_count",value:f.opts.length}); check(); return render(); }
+  if(t.closest("[data-delopt]")){ const [fid,oi]=t.closest("[data-delopt]").dataset.delopt.split(":"); const f=S.fields.find(x=>x.id===fid); if(f&&f.opts.length>1){ f.opts.splice(+oi,1); track("Field Setting Changed",{field_type:f.type,setting_key:"option_count",value:f.opts.length}); check(); } return render(); }
   const tg=t.closest("[data-tog]");
   if(tg){ const f=sel(); const k=tg.dataset.tog;
     if(k==="required"){ f.required=!f.required; track("Field Setting Changed",{field_type:f.type,setting_key:"required",value:f.required}); }
