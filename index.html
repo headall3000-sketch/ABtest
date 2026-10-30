@@ -181,6 +181,53 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .consent td,.consent th{border:1px solid var(--line);padding:8px 16px;min-width:110px;height:36px}
 .consent th{font-weight:600}
 .consent .ask{font-size:19px;font-weight:600;margin:22px 0 14px}
+/* ---- 유형별 문항 형식 ---- */
+.chk{width:20px;height:20px;border-radius:5px;border:2px solid #CDD2D8;background:#fff;flex:none}
+.optrow .num{width:22px;color:var(--ink3);font-size:13px;text-align:right;flex:none}
+.optrow .grip{color:var(--ink4);letter-spacing:-2px;flex:none;cursor:grab}
+.optrow .rk{width:26px;height:26px;border-radius:7px;background:var(--blue-l);color:var(--blue-d);font-weight:600;font-size:13px;display:grid;place-items:center;flex:none}
+.selbox{display:flex;align-items:center;justify-content:space-between;max-width:420px;border:1px solid var(--line);background:#fff;color:var(--ink3);margin-bottom:12px}
+.selbox svg.i{color:var(--ink3)}
+.tagwrap{display:flex;gap:6px;flex-wrap:wrap}
+.tagwrap span{background:var(--blue-l);color:var(--blue-d);border-radius:6px;padding:2px 8px;font-size:13px}
+.ftnote{font-size:12.5px;color:var(--ink3);margin:2px 0 10px}
+.scale{display:flex;gap:10px;flex-wrap:wrap}
+.scale .pt{width:52px;height:52px;border-radius:12px;background:#F8F9FA;border:1px solid var(--line);display:grid;place-items:center;font-weight:600;color:var(--ink2);font-size:16px}
+.scale.p .pt{width:auto;flex:1;min-width:36px}
+.scalelab{display:flex;justify-content:space-between;margin-top:10px;color:var(--ink3);font-size:13px;gap:12px}
+.scalelab span{background:#F8F9FA;border-radius:8px;padding:6px 10px}
+.mtx{border-collapse:separate;border-spacing:0;width:100%;font-size:14px;color:var(--ink)}
+.mtx th,.mtx td{padding:12px 10px;text-align:center;border-bottom:1px solid var(--line2)}
+.mtx th{font-weight:500;color:var(--ink2);background:#F8F9FA}
+.mtx th:first-child{border-radius:10px 0 0 10px}.mtx th:last-child{border-radius:0 10px 10px 0}
+.mtx td:first-child,.mtx th:first-child{text-align:left;width:34%}
+.mtx .radio,.mtx .chk{display:inline-block;vertical-align:middle}
+.mtx .radio{width:20px;height:20px;border-width:4px}
+.ttbl{border-collapse:collapse;width:100%;font-size:14px}
+.ttbl th,.ttbl td{border:1px solid var(--line);height:42px;padding:0 12px;text-align:left}
+.ttbl th{background:#F8F9FA;font-weight:500;color:var(--ink2)}
+.ttbl td{color:var(--ink4)}
+.inbox{display:flex;align-items:center;gap:10px}
+.inbox svg.i{color:var(--ink3)}
+.addr{display:grid;gap:8px;max-width:560px}
+.addr .r1{display:flex;gap:8px}
+.addr .r1 .box{flex:1}
+.btnb{height:46px;padding:0 16px;border-radius:12px;background:var(--ink);color:#fff;font-weight:500;display:inline-flex;align-items:center;gap:6px;flex:none}
+.drop{border:1.5px dashed #CDD2D8;border-radius:14px;background:#FAFBFC;padding:30px 20px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--ink2);text-align:center}
+.drop .big{width:46px;height:46px;border-radius:12px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink2)}
+.drop small{color:var(--ink3);font-size:12.5px}
+.mapbox{height:180px;border-radius:14px;background:linear-gradient(#EAF4EC 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,#EAF4EC 1px,transparent 1px) 0 0/28px 28px,#F5FAF6;display:grid;place-items:center;color:var(--green);margin-bottom:10px}
+.mapbox svg.i{width:34px;height:34px}
+.embedv{aspect-ratio:16/9;max-height:300px;border-radius:14px;background:#F2F4F6;display:grid;place-items:center;color:var(--ink3);margin-top:10px}
+.descbox{color:var(--ink2);line-height:1.7;background:none;padding:0}
+.pay{border:1px solid var(--line);border-radius:14px;padding:18px 20px;max-width:520px}
+.pay .row{display:flex;justify-content:space-between;padding:6px 0;color:var(--ink2)}
+.pay .row b{color:var(--ink)}
+.pay .paybtn{margin-top:12px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-weight:600}
+.dropout{display:flex;gap:12px;align-items:flex-start;border-radius:14px;background:#FDEDE4;color:#B4471A;padding:16px 18px;line-height:1.6}
+.dropout b{display:block;color:#8F3412}
+.sel2{display:flex;align-items:center;gap:8px;margin:4px 0 8px}
+.sel2 select{flex:1;height:40px;border-radius:9px;border:1px solid transparent;background:#F3F4F6;padding:0 8px;outline:none}
 .fcard.sel{padding-bottom:64px}
 .addzone{position:absolute;left:0;right:0;bottom:0;height:60px;display:none}
 .fcard.sel .addzone{display:block}
@@ -549,18 +596,45 @@ function curMission(){ for(let i=0;i<7;i++) if(!S.done[i] && !S.gaveUp[i]) retur
 function track(type, props={}){
   const ev = {event_type:type, user_id:PID, device_id:DEVICE, time:now(), insert_id:PID+"-"+now()+"-"+Math.random().toString(36).slice(2,7),
     event_properties:Object.assign({variant:VARIANT, current_mission:curMission(), elapsed_ms:S.t0?now()-S.t0:0, coach_mark_active:!!S.coach, viewport_w:innerWidth, is_internal:IS_INTERNAL, resumed:S.resumed}, props)};
-  if(type==="Test Started") ev.user_properties = {$set:{variant:VARIANT, is_internal:IS_INTERNAL}};
+  // 필드 유형이 있는 이벤트엔 한글 이름·그룹을 함께 실어 Amplitude에서 바로 묶어 볼 수 있게
+  const ft=ev.event_properties.field_type;
+  if(ft && TYPES[ft]){ ev.event_properties.field_type_name=TYPES[ft].name; ev.event_properties.field_group=TYPES[ft].g; }
+  if(type==="Test Started") ev.user_properties = {$set:{variant:VARIANT, is_internal:IS_INTERNAL, assignment:ASSIGN_METHOD}};
+  if(type==="Test Completed") ev.user_properties = {$set:{completed:true, missions_done:props.missions_done, missions_abandoned:props.missions_abandoned}};
   ev._sent=false; queue.push(ev); store.set(LOGKEY,queue); saveState();
-  if(IS_INTERNAL||qs.get("debug")==="1") console.log("[UT]",type,ev.event_properties);
+  if(DEBUG) console.log("[UT]",type,ev.event_properties);
   send([ev]);
 }
+/* Amplitude 전송 상태 — ?debug=1 또는 ?internal=1 로 열면 화면 왼쪽 아래에 표시 */
+const DEBUG = IS_INTERNAL || qs.get("debug")==="1";
+const AMP = {ok:0, fail:0, last:"", lastAt:0, inflight:new Set()};
 function send(evs){
+  evs = evs.filter(e=>!e._sent && !AMP.inflight.has(e.insert_id));
   if(!CONFIG.AMPLITUDE_API_KEY || !evs.length) return Promise.resolve();
+  evs.forEach(e=>AMP.inflight.add(e.insert_id));
   const body = JSON.stringify({api_key:CONFIG.AMPLITUDE_API_KEY, events:evs.map(({_sent,...e})=>e)});
-  return fetch(CONFIG.AMPLITUDE_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body,keepalive:body.length<60000})
-    .then(r=>{ if(r.ok){ evs.forEach(e=>e._sent=true); store.set(LOGKEY,queue);} }).catch(()=>{});
+  return fetch(CONFIG.AMPLITUDE_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json","Accept":"*/*"},body,keepalive:body.length<60000})
+    .then(async r=>{
+      let j=null; try{ j=await r.json(); }catch(_){}
+      AMP.lastAt=now();
+      if(r.ok){ evs.forEach(e=>e._sent=true); store.set(LOGKEY,queue); AMP.ok+=evs.length; AMP.last=`${r.status} 성공 (수신 ${j&&j.events_ingested!=null?j.events_ingested:evs.length}건)`; }
+      else { AMP.fail++; AMP.last=`${r.status} 실패 ${j&&j.error?"· "+j.error:""}`; if(DEBUG) console.warn("[UT] Amplitude 거부",r.status,j); }
+    })
+    .catch(err=>{ AMP.fail++; AMP.lastAt=now(); AMP.last="네트워크 오류 · 나중에 다시 보냄"; if(DEBUG) console.warn("[UT] Amplitude 전송 실패",err); })
+    .finally(()=>{ evs.forEach(e=>AMP.inflight.delete(e.insert_id)); renderAmpStatus(); });
 }
-function flush(){ return send(queue.filter(e=>!e._sent)); }
+function flush(){ const p=queue.filter(e=>!e._sent); const out=[]; for(let i=0;i<p.length;i+=200) out.push(send(p.slice(i,i+200))); return Promise.all(out); }
+setInterval(flush, 15000); // 끊겼던 이벤트 재전송 (insert_id로 중복은 Amplitude가 걸러 줌)
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") flush(); });
+function renderAmpStatus(){
+  if(!DEBUG) return;
+  let el=document.getElementById("ampStatus");
+  if(!el){ el=document.createElement("div"); el.id="ampStatus"; el.style.cssText="position:fixed;left:12px;bottom:72px;z-index:200;background:#111827;color:#fff;font-size:12px;line-height:1.6;border-radius:10px;padding:8px 12px;opacity:.9;pointer-events:none;max-width:320px"; document.body.appendChild(el); }
+  const pending=queue.filter(e=>!e._sent).length;
+  el.innerHTML = !CONFIG.AMPLITUDE_API_KEY ? "Amplitude 키 없음 · 브라우저에만 기록 중"
+    : `<b>Amplitude</b> · 전송 완료 ${queue.length-pending} / 대기 ${pending}<br>마지막 응답: ${esc(AMP.last||"아직 없음")}<br>참여자 ${esc(PID)} · ${esc(VARIANT||"-")}안`;
+}
+addEventListener("load",renderAmpStatus);
 
 /* 코치마크가 떠 있던 시간 중 [a,b] 구간과 겹치는 부분 */
 function coachOverlap(a,b){
@@ -623,6 +697,17 @@ function check(){
 /* ---------- 필드 ---------- */
 function newField(type){
   const f={id:"f"+(S.uid++), type, title:type==="consent"?"개인 정보 수집·이용 동의서":"", q:"", required:false, len:{on:false,min:"",max:""}, opts:type==="photo"?["",""]:[""], country:"auto"};
+  return ensureField(f);
+}
+/* 유형별 기본 구성 — 저장된 예전 필드도 여기서 보완 */
+const OPT_DEFAULT = {choice:2, multi:2, dropdown:3, dropdown_m:3, rank:3};
+function ensureField(f){
+  if(OPT_DEFAULT[f.type] && (!f.opts || f.opts.length<OPT_DEFAULT[f.type]) && !f._init){ f.opts=Array(OPT_DEFAULT[f.type]).fill(""); }
+  if(!f.opts) f.opts=[""];
+  if(!f.rows) f.rows=(f.type==="table")?2:3;
+  if(!f.cols) f.cols=(f.type==="table")?3:4;
+  if(!f.scale) f.scale={min:1,max:5};
+  f._init=true;
   return f;
 }
 function addField(type, source, at){
@@ -782,22 +867,76 @@ function catalogHTML(where){
     <div class="catseg"><button class="on" data-el="catalog_basic">기본</button><button data-el="catalog_custom">${ic("puzzle")}커스텀 필드</button></div></div>
     <div class="cgrid">${groups||`<p style="color:var(--ink3);padding:8px">검색 결과가 없어요.</p>`}</div></div>`;
 }
+/* 유형별 응답 영역 — pv=false: 편집 카드, pv=true: 응답자 미리보기 */
+function typeBody(f,pv){
+  ensureField(f);
+  const o=(k)=>pv?`옵션 ${k+1}`:"옵션을 입력해주세요";
+  const more=`<button class="more" data-el="field_more">${ic("dotsh")}</button>`;
+  const addOpt=(other=true)=>pv?"":`<div class="addopt"><button data-el="add_option" data-addopt="${f.id}">${ic("plus")}옵션 추가</button>${other?`<button data-el="add_other">Tт '기타' 옵션 추가</button>`:""}${more}</div>`;
+  const xx=pv?"":`<span class="x">${ic("x")}</span>`;
+  const rng=(a,b)=>Array.from({length:b-a+1},(_,k)=>a+k);
+  switch(f.type){
+    case "choice":
+      return f.opts.map((_,k)=>`<div class="optrow"><div class="box">${o(k)}<span class="radio"></span></div>${xx}</div>`).join("")+addOpt();
+    case "multi":
+      return `<div class="ftnote">여러 개를 선택할 수 있어요</div>`+f.opts.map((_,k)=>`<div class="optrow"><div class="box">${o(k)}<span class="chk"></span></div>${xx}</div>`).join("")+addOpt();
+    case "dropdown": case "dropdown_m": {
+      const m=f.type==="dropdown_m";
+      const head=`<div class="box selbox">${m?"선택해주세요 (여러 개 선택 가능)":"선택해주세요"}${ic("chev")}</div>`;
+      if(pv) return head;
+      return head+`<div class="ftnote">드롭다운 목록 항목</div>`+f.opts.map((_,k)=>`<div class="optrow"><span class="num">${k+1}.</span><div class="box">${o(k)}${m?'<span class="chk"></span>':""}</div>${xx}</div>`).join("")+addOpt(false);
+    }
+    case "scale": {
+      const pts=rng(f.scale.min,f.scale.max).map(n=>`<span class="pt">${n}</span>`).join("");
+      return `<div class="scale ${pv?"p":""}">${pts}</div><div class="scalelab"><span>${pv?"전혀 아니에요":`${f.scale.min} · 최저 라벨 (선택)`}</span><span>${pv?"매우 그래요":`${f.scale.max} · 최고 라벨 (선택)`}</span></div>`+(pv?"":`<div class="ftnote" style="margin-top:12px">오른쪽 설정에서 척도 범위를 바꿀 수 있어요</div>`);
+    }
+    case "matrix": case "matrix_m": {
+      const m=f.type==="matrix_m", mark=m?'<span class="chk"></span>':'<span class="radio"></span>';
+      const cols=rng(1,f.cols), rows=rng(1,f.rows);
+      return (m?`<div class="ftnote">행마다 여러 개를 선택할 수 있어요</div>`:`<div class="ftnote">행마다 하나씩 선택해요</div>`)+
+        `<table class="mtx"><tr><th></th>${cols.map(c=>`<th>${pv?`보기 ${c}`:`열 ${c}`}</th>`).join("")}</tr>${rows.map(r=>`<tr><td>${pv?`항목 ${r}`:`행 ${r} · 항목을 입력해주세요`}</td>${cols.map(()=>`<td>${mark}</td>`).join("")}</tr>`).join("")}</table>`+
+        (pv?"":`<div class="addopt"><button data-el="add_row" data-addrow="${f.id}">${ic("plus")}행 추가</button><button data-el="add_col" data-addcol="${f.id}">${ic("plus")}열 추가</button>${more}</div>`);
+    }
+    case "rank":
+      return `<div class="ftnote">${pv?"항목을 끌어서 순서를 정해주세요":"응답자가 항목을 끌어서 순위를 정해요"}</div>`+f.opts.map((_,k)=>`<div class="optrow"><span class="rk">${k+1}</span><div class="box">${o(k)}<span class="grip">⋮⋮</span></div>${xx}</div>`).join("")+addOpt(false);
+    case "short": return `<div class="box" style="max-width:560px">답변을 입력해주세요</div>`;
+    case "number": return `<div class="box inbox" style="max-width:320px">${ic("hash")}숫자만 입력해주세요</div>`+(pv?"":`<div class="ftnote" style="margin-top:8px">숫자 외의 문자는 입력되지 않아요</div>`);
+    case "email": return `<div class="box inbox" style="max-width:480px">${ic("mail")}example@email.com</div>`;
+    case "address": return `<div class="addr"><div class="r1"><div class="box">우편번호</div><button class="btnb" data-el="address_search">${ic("search")}주소 검색</button></div><div class="box">기본 주소</div><div class="box">상세 주소를 입력해주세요</div></div>`;
+    case "table": {
+      const cols=rng(1,f.cols), rows=rng(1,f.rows);
+      return `<table class="ttbl"><tr>${cols.map(c=>`<th>${pv?`항목 ${c}`:`열 ${c} 제목`}</th>`).join("")}</tr>${rows.map(()=>`<tr>${cols.map(()=>`<td>입력</td>`).join("")}</tr>`).join("")}</table>`+
+        (pv?"":`<div class="addopt"><button data-el="add_row" data-addrow="${f.id}">${ic("plus")}행 추가</button><button data-el="add_col" data-addcol="${f.id}">${ic("plus")}열 추가</button>${more}</div>`);
+    }
+    case "secret": return `<div class="box inbox">${ic("lock")}••••••••</div>`;
+    case "location": return `<div class="mapbox">${ic("pin")}</div><button class="btnb" data-el="location_record">${ic("pin")}현재 위치 기록하기</button>`;
+    case "shot": return `<div class="drop"><span class="big">${ic("camera")}</span><b>사진 촬영하기</b><small>모바일에서는 카메라가 바로 열려요</small></div>`;
+    case "movie": return `<div class="drop"><span class="big">${ic("video")}</span><b>영상 촬영하기</b><small>최대 1분 · 모바일에서는 카메라가 바로 열려요</small></div>`;
+    case "upload": return `<div class="drop"><span class="big">${ic("file")}</span><b>파일을 끌어다 놓거나 클릭해 업로드</b><small>최대 10MB · 이미지, PDF, 문서 파일</small></div>`;
+    case "desc": return `<div class="box descbox">${pv?"안내 문구가 이곳에 표시돼요.":"응답자에게 보여 줄 안내 문구를 입력해주세요. 답변을 받지 않는 필드예요."}</div>`;
+    case "embed": return (pv?"":`<div class="box inbox">${ic("link")}https:// 영상 또는 웹페이지 주소를 붙여 넣어주세요</div>`)+`<div class="embedv">${ic("globe")}</div>`;
+    case "toss": case "easypay": {
+      const t=f.type==="toss";
+      return `<div class="pay"><div class="row"><span>상품명</span><b>${pv?"상품 이름":"상품 이름을 입력해주세요"}</b></div><div class="row"><span>결제 금액</span><b>0원</b></div>
+        <div class="paybtn" style="background:${t?"#0064FF":"#7C5CDB"}">${ic("card")}${t?"토스페이먼츠로 결제하기":"간편결제로 결제하기"}</div></div>`;
+    }
+    case "drop_out": return `<div class="dropout">${ic("logout")}<div><b>${pv?"설문이 종료되었어요":"이 필드에 도달한 응답자는 설문이 바로 종료돼요"}</b>${pv?"참여해 주셔서 감사합니다.":"로직 탭에서 탈락 조건을 연결하고, 종료 안내 문구를 입력할 수 있어요."}</div></div>`;
+    default: return `<div class="box">답변을 입력해주세요</div>`;
+  }
+}
 function cardHTML(f,i){
   const T=TYPES[f.type]; let body="";
   switch(f.type){
     case "date": body=`<div class="box datebox">${ic("calendar")}날짜를 선택해주세요</div>`; break;
     case "time": body=`<div class="box datebox">${ic("clock")}시간을 선택해주세요</div>`; break;
     case "long": body=`<div class="box longbox">답변을 입력해주세요${ic("pencil")}</div>`; break;
-    case "short": case "email": case "address": case "number": body=`<div class="box">답변을 입력해주세요</div>`; break;
     case "phone": body=`<div class="box phonebox"><button class="ccbtn" data-el="country_select" data-cc="${f.id}">${f.country==="auto"?ic("globe"):`<span>${f.country}</span>`}${ic("ud","ud")}</button>010-2000-0000
         ${S.pop&&S.pop.kind==="cc"&&S.pop.id===f.id?ccHTML(f):""}</div>`; break;
     case "photo": body=`<div class="photos">${f.opts.map(()=>`<div class="pcard"><div class="pimg" data-el="photo_add_image">${ic("imgadd")}이미지 추가</div><div class="popt">옵션을 입력해주세요<span class="radio"></span></div></div>`).join("")}</div>
         <div class="hint">옵션 값 미입력 시 빈 값으로 수집됩니다</div>
         <div class="addopt"><button data-el="add_option" data-addopt="${f.id}">${ic("plus")}옵션 추가</button><button class="more" data-el="field_more">${ic("dotsh")}</button></div>`; break;
     case "consent": return consentCard(f,i);
-    case "desc": body=`<div class="box">설명을 입력해주세요</div>`; break;
-    default: body=f.opts.map(()=>`<div class="optrow"><div class="box">옵션을 입력해주세요<span class="radio"></span></div><span class="x">${ic("x")}</span></div>`).join("")+
-        `<div class="addopt"><button data-el="add_option" data-addopt="${f.id}">${ic("plus")}옵션 추가</button><button data-el="add_other">Tт '기타' 옵션 추가</button><button class="more" data-el="field_more">${ic("dotsh")}</button></div>`;
+    default: body=typeBody(f,false);
   }
   return wrapCard(f,i,`${f.required?'<div class="req">* 필수입력</div>':""}<input class="qinput" placeholder="질문을 입력하세요..." value="${esc(f.q)}" data-q="${f.id}" data-el="question_input">${body}`);
 }
@@ -842,12 +981,21 @@ function rightHTML(f){
   } else if(choiceLike){
     v+=tog("count","선택 개수 설정",false)+tog("cinclude","선택지 포함",false)+tog("cexclude","선택지 제외",false);
     if(f.type==="photo") v+=tog("perlimit","옵션별 응답 수 제한",false,ic("info"));
+  } else if(["matrix","matrix_m"].includes(f.type)){
+    v+=tog("rowreq","모든 행 응답 필수",false)+(f.type==="matrix_m"?tog("count","행별 선택 개수 설정",false):"")+tog("shuffle","행 순서 섞기",false);
+  }
+  let typeOpt="";
+  if(f.type==="scale"){
+    ensureField(f);
+    const opt=(arr,cur)=>arr.map(n=>`<option value="${n}" ${n===cur?"selected":""}>${n}</option>`).join("");
+    typeOpt=`<h5>척도 범위</h5><div class="sel2"><select data-scale="min" data-el="scale_min">${opt([0,1],f.scale.min)}</select><span style="color:var(--ink3)">~</span><select data-scale="max" data-el="scale_max">${opt([2,3,4,5,6,7,8,9,10],f.scale.max)}</select></div>`;
   }
   return `<div class="rp">
    <button class="close" data-el="right_close">${ic("x")}</button>
    <h5>필드 제목</h5><input class="rinput" placeholder="필드 제목" value="${esc(f.title)}" data-title="${f.id}" data-el="field_title_input">
    <h5>문항 유형</h5><div class="rtype" data-el="field_type_select"><span class="ico" style="color:${T.c[0]};background:${T.c[1]};width:24px;height:24px">${ic(T.ic)}</span>${T.name}${["consent","phone","photo","date"].includes(f.type)?"":`<span class="chev">${ic("chev")}</span>`}</div>
    ${f.type==="photo"?`<h5>문항 동작</h5>${tog("shuffle","선택지 섞기",false)}`:""}
+   ${typeOpt}
    <h5>응답 검증</h5>${v}
    <h5>보안</h5>${dtog("데이터 마스킹",1)}${dtog("응답 자동 삭제",1)}
   </div>`;
@@ -867,7 +1015,8 @@ function previewHTML(){
     else if(f.type==="photo") b=`<div class="photos">${f.opts.map(()=>`<div class="pcard"><div class="pimg" style="height:200px">No Image</div><div class="popt"><span></span><span class="radio"></span></div></div>`).join("")}</div>`;
     else if(f.type==="phone") b=`<div class="box phonebox">${ic("globe")} 010-2000-0000</div>`;
     else if(f.type==="consent") b=`<div class="consent" style="font-size:14px"><h3 style="font-size:19px">개인 정보 수집·이용 동의서</h3><p>위와 같이 개인정보를 수집·이용하는 것에 동의하십니까?</p><div class="optrow" style="margin-top:10px"><div class="box">동의합니다<span class="radio"></span></div></div><div class="optrow"><div class="box">동의하지 않습니다<span class="radio"></span></div></div></div>`;
-    else b=`<div class="box">답변을 입력해주세요</div>`;
+    else if(f.type==="time") b=`<div class="box datebox">${ic("clock")}시간을 선택해주세요</div>`;
+    else b=typeBody(f,true);
     return `<div class="pq">${f.required?'<div class="req">* 필수 입력</div>':""}<h4>${esc(f.q||"")}</h4>${b}</div>`; };
   return `<div class="pvwrap" data-area="preview"><div class="pv ${S.pvMode==="desk"?"desk":"mob"}"><div class="in">${F.map(q).join("")||'<p style="color:var(--ink3)">문항이 없어요.</p>'}</div><span class="made">Made with <b style="color:var(--blue)">walla</b></span></div>
    <div class="pvbar"><button class="on" data-el="preview_basic">${ic("monitor")}기본 보기</button><button data-el="preview_group">${ic("split")}그룹별 보기</button><span class="div"></span>
@@ -1039,6 +1188,9 @@ function bindEditor(){
     inp.oninput=()=>{ inp.value=inp.value.replace(/[^0-9]/g,""); sel().len[inp.dataset.len]=inp.value; const before=S.done.filter(Boolean).length; check(); if(S.done.filter(Boolean).length!==before) renderMissionOnly(); };
     inp.onchange=()=>{ const f=sel(); track("Field Setting Changed",{field_type:f.type, setting_key:inp.dataset.len==="min"?"min_length":"max_length", value:inp.value}); check(); renderMissionOnly(); };
   });
+  document.querySelectorAll("[data-scale]").forEach(s=>{
+    s.onchange=()=>{ const f=sel(); ensureField(f); f.scale[s.dataset.scale]=+s.value; track("Field Setting Changed",{field_type:f.type, setting_key:"scale_"+s.dataset.scale, value:+s.value}); render(); };
+  });
   const cq=document.getElementById("catq");
   if(cq){ cq.oninput=()=>{ S.catQuery=cq.value; const pos=cq.selectionStart; render(); const n=document.getElementById("catq"); n.focus(); n.setSelectionRange(pos,pos);} ; }
   // 드래그 순서 변경
@@ -1106,6 +1258,9 @@ document.addEventListener("click",e=>{
   const cp=t.closest("[data-cpick]"); if(cp){ const f=S.fields.find(x=>x.id===S.pop.id); f.country=cp.dataset.cpick; track("Field Setting Changed",{field_type:"phone",setting_key:"country",value:f.country}); S.pop=null; return render(); }
   if(t.closest(".ccpop")) return;
   if(t.closest("[data-addopt]")){ const f=S.fields.find(x=>x.id===t.closest("[data-addopt]").dataset.addopt); f.opts.push(""); return render(); }
+  if(t.closest("[data-addrow]")){ const f=S.fields.find(x=>x.id===t.closest("[data-addrow]").dataset.addrow); ensureField(f); if(f.rows<10) f.rows++; return render(); }
+  if(t.closest("[data-addcol]")){ const f=S.fields.find(x=>x.id===t.closest("[data-addcol]").dataset.addcol); ensureField(f); if(f.cols<(f.type==="table"?6:7)) f.cols++; return render(); }
+  if(t.closest("[data-scale]")) return;
   const tg=t.closest("[data-tog]");
   if(tg){ const f=sel(); const k=tg.dataset.tog;
     if(k==="required"){ f.required=!f.required; track("Field Setting Changed",{field_type:f.type,setting_key:"required",value:f.required}); }
@@ -1150,7 +1305,11 @@ function publish(){
   render();
   setTimeout(()=>{ S.toast=false; if(S.screen==="editor"){ S.endAsk=true; render(); } },2000);
 }
-function finish(){ flush(); S.screen="end"; S.endAsk=false; saveState(); render(); }
+function finish(){
+  const done=S.done.filter(Boolean).length, gaveUp=S.gaveUp.filter(Boolean).length, gt=gapTotal();
+  track("Test Completed",{missions_done:done, missions_abandoned:gaveUp, total_ms:now()-S.t0-gt, total_excl_coach_ms:now()-S.t0-gt-coachTotal(),
+    field_count:S.fields.length, field_types:[...new Set(S.fields.map(f=>f.type))], publish_count:S.publishCount});
+  flush(); S.screen="end"; S.endAsk=false; saveState(); render(); }
 
 
 /* ---------- 이어서 진행: 상태 저장·복원 ---------- */
