@@ -234,7 +234,8 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke
 /* coach marks (B) */
 #coachDim{position:fixed;inset:0;z-index:90;pointer-events:auto}
 #coachDim .hole{position:fixed;border-radius:16px;box-shadow:0 0 0 9999px rgba(17,24,39,.48);pointer-events:none;transition:all .15s}
-.coach{position:fixed;z-index:91;width:340px;max-height:calc(100vh - 150px);overflow:auto;background:var(--blue);color:#fff;border-radius:16px;padding:18px 18px 16px;box-shadow:0 14px 36px rgba(20,60,140,.35)}
+.coach{position:fixed;z-index:91;width:340px;background:var(--blue);color:#fff;border-radius:16px;padding:18px 18px 16px;box-shadow:0 14px 36px rgba(20,60,140,.35)}
+.coach .cin{max-height:calc(100vh - 120px);overflow:auto;margin:-18px -18px -16px;padding:18px 18px 16px;border-radius:16px}
 .coach::after{content:"";position:absolute;width:16px;height:16px;background:var(--blue);transform:rotate(45deg);border-radius:3px}
 .coach.t-left::after{left:-7px;top:30px}
 .coach.t-right::after{right:-7px;top:30px}
@@ -1049,16 +1050,17 @@ function renderCoach(){
   if(a==="left"){ target=L; cls="t-left"; x=L.right+16; }
   if(a==="center"){ target=Ce; cls="t-none"; x=Ce.left+4; }
   if(a==="right"){ target=R||{left:innerWidth-280,right:innerWidth-12,top:68,bottom:innerHeight-12,width:268,height:innerHeight-80}; cls="t-right"; x=target.left-W-16; }
-  if(a==="top"){ target={left:T.left-6,top:8,right:T.right+6,bottom:50,width:T.width+12,height:42}; cls="t-up"; x=Math.min(innerWidth-W-16, T.left); }
+  if(a==="top"){ target={left:T.left-6,top:8,right:T.right+6,bottom:50,width:T.width+12,height:42}; cls="t-up"; x=innerWidth-W-16; }
+  const y = a==="top" ? 56+16 : COACH_Y; // 상단 코치마크: 화면 우측 끝·상단 네비게이션 바에서 각각 16px
   const dim=document.createElement("div"); dim.id="coachDim";
   dim.innerHTML=`<div class="hole" style="left:${target.left-4}px;top:${target.top-4}px;width:${target.width+8}px;height:${target.height+8}px"></div>`;
   document.body.appendChild(dim);
-  const c=document.createElement("div"); c.className="coach "+cls; c.style.left=x+"px"; c.style.top=COACH_Y+"px";
+  const c=document.createElement("div"); c.className="coach "+cls; c.style.left=x+"px"; c.style.top=y+"px";
   if(a==="top"){ const pb=document.querySelector('[data-el="preview_button"]').getBoundingClientRect(); c.style.setProperty("--tx",(pb.left+pb.width/2-x)+"px"); }
   const n=COACH_ORDER.filter(k=>S.coachSeen[k]).length;
-  c.innerHTML=`<div class="ch"><b>${cfg.title}</b><button data-c="close" aria-label="닫기">${ic("x")}</button></div>
+  c.innerHTML=`<div class="cin"><div class="ch"><b>${cfg.title}</b><button data-c="close" aria-label="닫기">${ic("x")}</button></div>
    <video class="gif" src="assets/coach_${a}.mp4" autoplay muted loop playsinline preload="auto"></video>
-   <div class="cbody"></div>`;
+   <div class="cbody"></div></div>`;
   document.body.appendChild(c);
   c.querySelector('[data-c="close"]').onclick=()=>closeCoach("close");
   /* 페이지가 나뉜 코치마크: 영상은 그대로 두고 설명과 버튼만 바꿈 */
@@ -1072,11 +1074,16 @@ function renderCoach(){
   };
   /* 화면이 낮아 미션 카드(최상단 레이어)와 겹치면, 같은 높이를 유지한 채 카드 왼쪽으로 옮기고 꼬리는 숨김 */
   const avoidCard=()=>{
-    c.style.left=x+"px"; c.className="coach "+cls;
+    c.style.left=x+"px"; c.style.top=y+"px"; c.className="coach "+cls;
     const m=document.getElementById("mcard"); if(!m) return;
-    const cr=c.getBoundingClientRect(), mr=m.getBoundingClientRect();
-    const hit=!(cr.bottom<=mr.top-8||cr.top>=mr.bottom||cr.right<=mr.left-8||cr.left>=mr.right);
-    if(hit){ c.style.left=Math.max(12, mr.left-W-16)+"px"; c.className="coach t-none"; }
+    const hit=()=>{ const cr=c.getBoundingClientRect(), mr=m.getBoundingClientRect(); return !(cr.bottom<=mr.top-8||cr.top>=mr.bottom||cr.right<=mr.left-8||cr.left>=mr.right); };
+    if(!hit()) return;
+    /* 1순위: 같은 x(대상 옆 16px)를 지키고 위로 올림 */
+    const mr=m.getBoundingClientRect(), h=c.getBoundingClientRect().height;
+    const ny=Math.max(56+16, mr.top-16-h); c.style.top=ny+"px";
+    if(!hit()) return;
+    /* 2순위: 원래 높이로 돌아가 카드 왼쪽으로 옮기고 꼬리 숨김 */
+    c.style.top=y+"px"; c.style.left=Math.max(12, mr.left-W-16)+"px"; c.className="coach t-none";
   };
   paint();
 }
