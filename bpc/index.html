@@ -966,7 +966,7 @@ function othersKept(F){
 function check(){
   const F=S.fields, has=t=>F.some(f=>f.type===t);
   const cond = [
-    S.searchUsed && S.searchPickedDate && has("date"),
+    has("date"), /* 2차 UT: 두 안 공통 — 날짜 문항만 있으면 성공 */
     F.some(longMin50),
     !!(S.settingsSeen && S.sset && S.sset.limit && Number(S.sset.limitN)===20),
     !!(S.btnPopSeen && btnTextOk()),
