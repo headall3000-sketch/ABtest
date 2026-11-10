@@ -2760,6 +2760,20 @@ Object.assign(ASSET,{"pv_choice":"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlz
    ==================================================== */
 assignArm = async function(){ ARM="C"; ARM_METHOD="fixed"; store.set("walla_cp_arm_"+PID, ARM); setUrl(); applyArm(); };
 
+
+/* 영상 소스: 웹(깃허브 페이지)에서는 cp/media 의 mp4 파일, 파일로 열면 내장 데이터를 Blob 주소로 바꿔 재생
+   (Safari·앱 미리보기는 data: 주소 영상을 재생하지 못하는 경우가 있음) */
+const VSRC={};
+(function(){
+  const web=/^https?:$/.test(location.protocol);
+  Object.keys(ASSET).filter(k=>/^(pv|cm)_/.test(k)).forEach(k=>{
+    if(web){ VSRC[k]="media/"+k+".mp4"; return; }
+    try{ const b64=ASSET[k].split(",")[1], bin=atob(b64), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+      VSRC[k]=URL.createObjectURL(new Blob([u],{type:"video/mp4"})); }catch(e){ VSRC[k]=ASSET[k]; }
+  });
+})();
+function playVid(root){ root&&root.querySelectorAll("video").forEach(v=>{ v.muted=true; v.defaultMuted=true; v.playsInline=true; const p=v.play(); if(p&&p.catch) p.catch(()=>{}); }); }
+
 /* FAB: 피그마 최종 화면의 왈라 버튼 */
 fabHTML = function(){
   const open=!!(S.pop&&S.pop.kind==="fab");
@@ -2779,8 +2793,8 @@ function showPreviewTip(b){
     if(S.coach||S.guide) return;
     const k=b.dataset.type; if(!TYPES[k]) return;
     tipEl=document.createElement("div"); tipEl.className="tip tipv";
-    tipEl.innerHTML=`${ASSET["pv_"+k]?`<div class="ex"><video src="${ASSET["pv_"+k]}" autoplay muted loop playsinline preload="auto" width="280" height="200"></video></div>`:""}<div class="tx"><b>${TYPES[k].name}</b>${TIPS[k]||""}</div>`;
-    document.body.appendChild(tipEl);
+    tipEl.innerHTML=`${VSRC["pv_"+k]?`<div class="ex"><video src="${VSRC["pv_"+k]}" autoplay muted loop playsinline preload="auto" width="280" height="200"></video></div>`:""}<div class="tx"><b>${TYPES[k].name}</b>${TIPS[k]||""}</div>`;
+    document.body.appendChild(tipEl); playVid(tipEl);
     const r=b.getBoundingClientRect(); let x=r.right+10; if(x+290>innerWidth) x=r.left-290;
     tipEl.style.left=x+"px"; tipEl.style.top=Math.max(10,Math.min(innerHeight-tipEl.offsetHeight-10,r.top-40))+"px";
     track("Field Preview Shown",{field_type:k});
@@ -2846,13 +2860,13 @@ function renderGuide(){
         </div>
       </div>
       <div class="gright">
-        <video class="gvid" src="${ASSET["cm_"+st.area]}" autoplay muted loop playsinline preload="auto"></video>
+        <video class="gvid" src="${VSRC["cm_"+st.area]}" autoplay muted loop playsinline preload="auto"></video>
         <div class="gtext"><div class="ggrid ${st.one?"one":""} ${st.wide?"wide":""}">${st.items.map(([h,d])=>`<div class="gitem"><b>${h}</b><p>${d}</p></div>`).join("")}</div></div>
       </div>
     </div>
     <button class="gdont" data-g="dont">${DONT_SHOW}<span>다시 보지 않기</span></button>
   </div>`;
-  document.body.appendChild(el); fitGuide();
+  document.body.appendChild(el); fitGuide(); playVid(el);
   el.querySelector('[data-g="prev"]').onclick=()=>{ if(g.step>0) guideGo(g.step-1,"prev"); };
   el.querySelector('[data-g="next"]').onclick=()=>{ if(last) closeGuide("complete"); else guideGo(g.step+1,"next"); };
   el.querySelector('[data-g="dont"]').onclick=()=>closeGuide("dont_show_again");
