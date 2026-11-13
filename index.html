@@ -328,6 +328,9 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke
 #right .rp{padding-bottom:120px}
 #narrow{position:fixed;inset:0;z-index:300;background:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;line-height:1.7}
 </style>
+<!-- Amplitude 세션 리플레이 (화면 녹화) -->
+<script src="https://cdn.jsdelivr.net/npm/@amplitude/analytics-browser@2.48.1/lib/scripts/amplitude-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@amplitude/plugin-session-replay-browser@1.36.4/lib/scripts/plugin-session-replay-browser-min.js"></script>
 </head>
 <body>
 
@@ -376,6 +379,19 @@ async function assignVariant(){
   store.set("walla_ut_v_"+PID, VARIANT); setUrl();
 }
 const DEVICE = store.get("walla_ut_dev") || ("d-"+Math.random().toString(36).slice(2,12)); store.set("walla_ut_dev",DEVICE);
+/* 세션 리플레이: 페이지를 열 때마다 세션 하나. 이벤트에 같은 session_id와 Replay ID를 붙여 녹화와 이벤트를 이어 줌.
+   입력칸 내용은 가려서 녹화(medium) — 시작 화면의 '입력한 문구는 기록하지 않아요' 약속 유지 */
+const SESSION_ID = Date.now();
+const REPLAY_ID = DEVICE+"/"+SESSION_ID;
+let REPLAY_ON = false;
+(function initReplay(){
+  if(!CONFIG.AMPLITUDE_API_KEY || !window.amplitude || !window.sessionReplay) return;
+  try{
+    window.amplitude.add(window.sessionReplay.plugin({sampleRate:1, privacyConfig:{defaultMaskLevel:"medium"}}));
+    window.amplitude.init(CONFIG.AMPLITUDE_API_KEY, PID, {deviceId:DEVICE, sessionId:SESSION_ID, sessionTimeout:6*60*60*1000, autocapture:false, fetchRemoteConfig:true, logLevel:0});
+    REPLAY_ON = true;
+  }catch(e){}
+})();
 
 /* ---------- 아이콘 ---------- */
 const P = {
@@ -567,8 +583,8 @@ const queue = store.get(LOGKEY) || [];
 function now(){return Date.now()}
 function curMission(){ for(let i=0;i<7;i++) if(!S.done[i] && !S.gaveUp[i]) return i+1; return 8; }
 function track(type, props={}){
-  const ev = {event_type:type, user_id:PID, device_id:DEVICE, time:now(), insert_id:PID+"-"+now()+"-"+Math.random().toString(36).slice(2,7),
-    event_properties:Object.assign({variant:VARIANT, current_mission:curMission(), elapsed_ms:S.t0?now()-S.t0:0, coach_mark_active:!!S.coach, viewport_w:innerWidth, is_internal:IS_INTERNAL, resumed:S.resumed}, props)};
+  const ev = {event_type:type, user_id:PID, device_id:DEVICE, session_id:SESSION_ID, time:now(), insert_id:PID+"-"+now()+"-"+Math.random().toString(36).slice(2,7),
+    event_properties:Object.assign({variant:VARIANT, current_mission:curMission(), elapsed_ms:S.t0?now()-S.t0:0, coach_mark_active:!!S.coach, viewport_w:innerWidth, is_internal:IS_INTERNAL, resumed:S.resumed}, REPLAY_ON?{"[Amplitude] Session Replay ID":REPLAY_ID}:{}, props)};
   if(type==="Test Started") ev.user_properties = {$set:Object.assign({variant:VARIANT, is_internal:IS_INTERNAL, assignment:ASSIGN_METHOD}, profileProps())};
   ev._sent=false; queue.push(ev); store.set(LOGKEY,queue); saveState();
   if(IS_INTERNAL||qs.get("debug")==="1") console.log("[UT]",type,ev.event_properties);
@@ -730,7 +746,7 @@ function renderStart(){
    <h1>설문 만들기 테스트</h1><p class="sub">약 15분 · 미션을 마친 뒤 2분 설문</p>
    <div class="sit"><b>미션 안내</b><br>왈라에서 설문 하나를 만들어 보는 테스트예요. 아래 미션 7가지를 순서대로 수행하면 설문이 완성돼요. 어떤 설문을 만드는지 먼저 훑어보고 시작해 주세요.</div>
    <ol class="mlist" style="margin-top:16px">${MISSIONS.map(m=>`<li>${esc(m.t)}</li>`).join("")}</ol>
-   <p class="note">테스트 중에는 오른쪽 아래 미션 카드에서 지금 할 미션과 성공 조건을 볼 수 있어요. 정답은 없어요. 막히면 그만두고 설문으로 넘어가셔도 괜찮아요.<br>입력한 문구는 기록하지 않아요.</p>
+   <p class="note">테스트 중에는 오른쪽 아래 미션 카드에서 지금 할 미션과 성공 조건을 볼 수 있어요. 정답은 없어요. 막히면 그만두고 설문으로 넘어가셔도 괜찮아요.<br>화면을 누르고 이동한 과정은 녹화되지만, 입력한 문구는 가려져 기록되지 않아요.</p>
    <button class="cta" id="go">테스트 시작하기 (약 15분)</button>
    <button class="cta sec" id="back" style="margin-top:10px">이전</button>
   </div></div>`;
